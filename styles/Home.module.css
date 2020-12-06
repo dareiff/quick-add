@@ -8,12 +8,14 @@
 }
 
 .main {
-    padding: 0;
+    padding: 10px;
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
+    width: 100%;
+    max-width: 400px;
 }
 
 .footer {
@@ -40,6 +42,12 @@
     text-decoration: none;
 }
 
+.button {
+    padding: 10px 30px;
+    margin: 20px auto;
+    width: 100%;
+}
+
 .title a:hover,
 .title a:focus,
 .title a:active {
@@ -49,7 +57,6 @@
 .title {
     margin: 10px 0;
     line-height: 1.15;
-    font-size: 2rem;
 }
 
 .title,
@@ -59,14 +66,12 @@
 
 .description {
     line-height: 1.5;
-    font-size: 1.5rem;
 }
 
 .code {
     background: #fafafa;
     border-radius: 5px;
     padding: 0.75rem;
-    font-size: 1.1rem;
     font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
         DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
 }
@@ -99,11 +104,8 @@
 }
 
 .numberEntry {
-    font-size: 36px;
     width: 100%;
-    text-align: right;
     padding-right: 15px;
-    
 }
 
 .numberEntry::before {
@@ -111,8 +113,18 @@
 }
 
 .category {
-    font-size: 36px;
     width: 100%;
+}
+
+.numberEntry,
+.category,
+.button {
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+    text-align: right;
+    border: 2px solid #404040;
+    font-size: 22px;
 }
 
 .card:hover,
@@ -124,12 +136,10 @@
 
 .card h3 {
     margin: 0 0 1rem 0;
-    font-size: 1.5rem;
 }
 
 .card p {
     margin: 0;
-    font-size: 1.25rem;
     line-height: 1.5;
 }
 
