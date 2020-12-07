@@ -5,10 +5,12 @@ console.log(lunchBag);
 export interface AddI {
     amount: number;
     category: string;
+    date: string;
     payee: string;
 }
 
 export default (req: NextApiRequest, res: NextApiResponse) => {
+    console.log(req.body);
     fetch('https://dev.lunchmoney.app/v1/transactions', {
         method: 'POST',
         headers: {
