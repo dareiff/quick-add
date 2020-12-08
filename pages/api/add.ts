@@ -18,21 +18,13 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
             Authorization: 'Bearer ' + lunchBag,
         },
         body: JSON.stringify({
-            transactions: [
-                req.body.transactions.map((transaction: AddI) => {
-                    return transaction;
-                }),
-            ],
+            transactions: req.body.transactions,
         }),
     })
+        .then(result => result.json())
         .then(result => {
-            if (result.status === 401) {
-                res.statusCode = 401;
-                res.json({ result });
-            }
             console.log(result);
-            res.statusCode = 200;
-            res.json({ success: true });
+            res.status(200).json(result);
         })
         .catch(err => {
             console.log(err);
