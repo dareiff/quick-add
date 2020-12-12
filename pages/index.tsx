@@ -98,6 +98,7 @@ const Home: React.FC = () => {
                 .then(res => {
                     console.log(res);
                     setLoading(false);
+                    setAmount(0);
                     setSuccess(true);
                 })
                 .catch(err => {
