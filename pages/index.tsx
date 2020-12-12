@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
-import { useEffect, useReducer, useState } from 'react';
+import { createRef, useEffect, useReducer, useState } from 'react';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
 
@@ -12,6 +12,27 @@ const FavSelector = styled.span`
     display: flex;
     justify-content: space-between;
     background-color: ${props => (props.odd ? '#fafafa' : '#fff')};
+`;
+
+const InputWrapper = styled.div`
+    width: 100%;
+    text-align: left;
+    border: 2px solid #404040;
+    font-size: 22px;
+    border-radius: 5px;
+    padding: 10px;
+`;
+
+const NumberInput = styled.input`
+    font-size: 20px;
+    border: none;
+    width: 80%;
+    margin: 0 auto;
+    display: inline-block;
+`;
+
+const DollarSign = styled.span`
+    font-size: 22px;
 `;
 
 const Bubble = styled.span`
@@ -54,6 +75,8 @@ const Home: React.FC = () => {
     const [cats, setCats] = useState<any>(null);
     const [categoryID, setCategoryID] = useState<number | null>(null);
 
+    const amountRef = createRef<HTMLInputElement>();
+
     const favoriteCategories = { categories: [] };
 
     const [favCats, dispatch] = useReducer(reducer, favoriteCategories);
@@ -70,6 +93,7 @@ const Home: React.FC = () => {
 
     useEffect(() => {
         downloadCats();
+        amountRef.current.focus();
     }, []);
 
     const insertTransaction = async () => {
@@ -110,23 +134,26 @@ const Home: React.FC = () => {
     return (
         <div className={styles.container}>
             <Head>
-                <title>Lunch Money Quick Add</title>
+                <title>Coin Purse</title>
             </Head>
 
             <main className={styles.main}>
-                <h1 className={styles.title}>Cookie Jar</h1>
+                <h1 className={styles.title}>Coin Purse</h1>
                 {success && <span>we good</span>}
                 {cats === null && <span>loading</span>}
                 <label className={styles.label} htmlFor='lineItem'>
                     Cash Entry:
                 </label>
-                <input
-                    id='lineItem'
-                    className={styles.numberEntry}
-                    type='number'
-                    pattern='\d*'
-                    onChange={e => setAmount(parseInt(e.target.value))}
-                />
+                <InputWrapper>
+                    <DollarSign>$</DollarSign>
+                    <NumberInput
+                        id='lineItem'
+                        type='number'
+                        ref={amountRef}
+                        pattern='\d*'
+                        onChange={e => setAmount(parseInt(e.target.value))}
+                    />
+                </InputWrapper>
                 {favCats.categories.length > 0 && (
                     <BubbleHolder>
                         {favCats.categories.map(cat => {
