@@ -41,14 +41,25 @@ const MainContainer = styled.div`
     align-items: center;
     width: 100%;
     max-width: 400px;
+
+    label {
+        text-align: left;
+        margin: 10px 0;
+        font-weight: 600;
+        width: 100%;
+    }
 `;
 
 const NumberInput = styled.input`
     font-size: 20px;
     border: none;
-    width: 80%;
-    margin: 0 auto;
+    width: 90%;
+    margin: 0 0 0 10px;
     display: inline-block;
+
+    &:focus {
+        outline: none;
+    }
 `;
 
 const DollarSign = styled.span`
@@ -175,13 +186,11 @@ const Home: React.FC = () => {
             </Head>
 
             <MainContainer>
-                <h1 className={styles.title}>Coin Purse</h1>
+                <h1>Coin Purse</h1>
                 {success && <span>we good</span>}
                 {cats === null && <span>Loading...</span>}
                 {error.length > 0 && <span>{error}</span>}
-                <label className={styles.label} htmlFor='lineItem'>
-                    Cash Entry:
-                </label>
+                <label htmlFor='lineItem'>Cash Entry:</label>
                 <InputWrapper>
                     <DollarSign>$</DollarSign>
                     <NumberInput
@@ -207,7 +216,7 @@ const Home: React.FC = () => {
                         })}
                     </BubbleHolder>
                 )}
-                <label className={styles.label} htmlFor='categorySelect'>
+                <label htmlFor='categorySelect'>
                     <span>Category:</span>{' '}
                     <span
                         style={{
