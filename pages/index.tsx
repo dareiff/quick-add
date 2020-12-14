@@ -23,6 +23,26 @@ const InputWrapper = styled.div`
     padding: 10px;
 `;
 
+const AppContainer = styled.div`
+    min-height: 100vh;
+    padding: 0 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+`;
+
+const MainContainer = styled.div`
+    padding: 10px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+`;
+
 const NumberInput = styled.input`
     font-size: 20px;
     border: none;
@@ -51,7 +71,6 @@ const BubbleHolder = styled.div`
 `;
 
 const reducer = (state, action) => {
-    console.log('ACTION', action);
     if (state.categories.filter(cat => cat.id === action.value.id).length > 0) {
         const filterCats = state.categories.filter(
             currentFavorite => currentFavorite.id !== action.value.id
@@ -67,12 +86,26 @@ const reducer = (state, action) => {
     }
 };
 
+interface LunchMoneyCategory {
+    id: number;
+    name: string;
+    description: null;
+    is_income: boolean;
+    exclude_from_budget: boolean;
+    exclude_from_totals: boolean;
+    updated_at: string;
+    created_at: string;
+    is_group: boolean;
+    group_id: null | number;
+}
+
 const Home: React.FC = () => {
     const [amount, setAmount] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(false);
     const [favs, setFavs] = useState<boolean>(false);
     const [success, setSuccess] = useState<boolean>(false);
-    const [cats, setCats] = useState<any>(null);
+    const [cats, setCats] = useState<Array<LunchMoneyCategory>>(null);
+    const [error, setError] = useState<string>('');
     const [categoryID, setCategoryID] = useState<number | null>(null);
 
     const amountRef = createRef<HTMLInputElement>();
@@ -85,10 +118,14 @@ const Home: React.FC = () => {
         await fetch('/api/getCat')
             .then(result => result.json())
             .then((result: any) => {
-                console.log(result);
                 setCats(result.categories);
             })
-            .catch(err => setCats(undefined));
+            .catch(err => {
+                setError(
+                    'Something went wrong downloading categories. You might check your network connection, or your API key'
+                );
+                setCats(null);
+            });
     };
 
     useEffect(() => {
@@ -132,15 +169,16 @@ const Home: React.FC = () => {
     };
 
     return (
-        <div className={styles.container}>
+        <AppContainer>
             <Head>
                 <title>Coin Purse</title>
             </Head>
 
-            <main className={styles.main}>
+            <MainContainer>
                 <h1 className={styles.title}>Coin Purse</h1>
                 {success && <span>we good</span>}
-                {cats === null && <span>loading</span>}
+                {cats === null && <span>Loading...</span>}
+                {error.length > 0 && <span>{error}</span>}
                 <label className={styles.label} htmlFor='lineItem'>
                     Cash Entry:
                 </label>
@@ -233,7 +271,7 @@ const Home: React.FC = () => {
                 >
                     Add
                 </button>
-            </main>
+            </MainContainer>
 
             <footer className={styles.footer}>
                 <a
@@ -244,7 +282,7 @@ const Home: React.FC = () => {
                     team fun
                 </a>
             </footer>
-        </div>
+        </AppContainer>
     );
 };
 
