@@ -4,6 +4,24 @@ import { createRef, useEffect, useReducer, useState } from 'react';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
 
+const Footer = styled.div`
+    width: 100%;
+    border-top: 1px solid #eaeaea;
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+    align-items: center;
+
+    img {
+        margin-left: 0.5rem;
+    }
+    a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+`;
+
 const FavSelector = styled.span`
     text-align: left;
     width: 100%;
@@ -21,6 +39,23 @@ const InputWrapper = styled.div`
     font-size: 22px;
     border-radius: 5px;
     padding: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+`;
+
+const TheSingleStepper = styled.div`
+    width: 40px;
+    display: flex;
+    flex-direction: column;
+
+    > div {
+        width: 100%;
+        height: 50%;
+        background-color: #303030;
+        color: #fff;
+        text-align: center;
+    }
 `;
 
 const AppContainer = styled.div`
@@ -48,6 +83,14 @@ const MainContainer = styled.div`
         font-weight: 600;
         width: 100%;
     }
+`;
+
+const Button = styled.button`
+    width: 100%;
+    background-color: #404040;
+    color: #fff;
+    padding: 10px 30px;
+    margin: 20px auto;
 `;
 
 const NumberInput = styled.input`
@@ -192,6 +235,10 @@ const Home: React.FC = () => {
                 {error.length > 0 && <span>{error}</span>}
                 <label htmlFor='lineItem'>Cash Entry:</label>
                 <InputWrapper>
+                    <TheSingleStepper>
+                        <div>+</div>
+                        <div>-</div>
+                    </TheSingleStepper>
                     <DollarSign>$</DollarSign>
                     <NumberInput
                         id='lineItem'
@@ -257,16 +304,11 @@ const Home: React.FC = () => {
                     ))}
                 <select
                     onChange={e => setCategoryID(parseInt(e.target.value))}
-                    className={styles.category}
                     id='categorySelect'
                 >
                     {cats !== null ? (
                         cats.map((category, i) => (
-                            <option
-                                className={styles.category}
-                                key={i}
-                                value={category.id}
-                            >
+                            <option key={i} value={category.id}>
                                 {category.name}
                             </option>
                         ))
@@ -274,15 +316,10 @@ const Home: React.FC = () => {
                         <option>Loading</option>
                     )}
                 </select>
-                <button
-                    className={styles.button}
-                    onClick={() => insertTransaction()}
-                >
-                    Add
-                </button>
+                <Button onClick={() => insertTransaction()}>Add</Button>
             </MainContainer>
 
-            <footer className={styles.footer}>
+            <Footer>
                 <a
                     href='https://derekr.net'
                     target='_blank'
@@ -290,7 +327,7 @@ const Home: React.FC = () => {
                 >
                     team fun
                 </a>
-            </footer>
+            </Footer>
         </AppContainer>
     );
 };
