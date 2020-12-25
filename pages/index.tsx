@@ -2,7 +2,6 @@ import Head from 'next/head';
 import { createRef, useEffect, useReducer, useState } from 'react';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
-import useLongPress from '../utils/useLongPress';
 
 const MoneyAdder = styled.div`
   display: flex;
