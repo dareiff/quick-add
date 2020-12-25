@@ -1,35 +1,43 @@
-import Head from "next/head";
-import styles from "../styles/Home.module.css";
-import { createRef, useEffect, useReducer, useState } from "react";
-import dayjs from "dayjs";
-import styled from "styled-components";
+import Head from 'next/head';
+import { createRef, useEffect, useReducer, useState } from 'react';
+import dayjs from 'dayjs';
+import styled from 'styled-components';
+import useLongPress from '../utils/useLongPress';
 
-const Footer = styled.div`
-  width: 100%;
-  border-top: 1px solid #eaeaea;
+const MoneyAdder = styled.div`
   display: flex;
-  justify-content: center;
-  padding: 10px 0;
-  align-items: center;
+  flex-direction: row;
+  flex-flow: row wrap;
+  margin: 20px 0;
+  justify-content: flex-start;
 
-  img {
-    margin-left: 0.5rem;
-  }
-  a {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  > span {
+    display: inline-flex;
+    margin: 0 5px 0 0;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+    background-color: rgba(253, 178, 154, 0.73);
   }
 `;
 
-const FavSelector = styled.span`
-  text-align: left;
-  width: 100%;
-  font-size: 18px;
-  padding: 5px 0;
+const CategoryHolder = styled.div`
   display: flex;
-  justify-content: space-between;
-  background-color: ${(props) => (props.odd ? "#fafafa" : "#fff")};
+  flex-direction: row;
+  flex-wrap: wrap;
+`;
+
+const CategorySelector = styled.div`
+  display: inline;
+  padding: 5px 10px;
+  margin: 5px 8px 5px 0;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: ${(props) =>
+    props.selected ? 'rgba(74, 225, 94, 1.00)' : 'rgba(255, 205, 1, .20)'};
+  border-radius: 8px;
+  color: ${(props) => (props.dimmed ? '#909090' : '#202020')};
+  font-weight: ${(props) => (props.selected ? 600 : 400)};
 `;
 
 const InputWrapper = styled.div`
@@ -38,7 +46,7 @@ const InputWrapper = styled.div`
   border: 2px solid #404040;
   font-size: 22px;
   border-radius: 5px;
-  padding: 10px;
+  padding: 5px 10px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -52,7 +60,7 @@ const TheSingleStepper = styled.div`
 
 const ValueChange = styled.div`
   background-color: ${(props) =>
-    props.selected ? "rgba(253, 178, 154, 0.73)" : "#fff"};
+    props.selected ? 'rgba(253, 178, 154, 0.73)' : '#fff'};
   width: 28px;
   height: 29px;
   color: #404040;
@@ -94,6 +102,13 @@ const Button = styled.button`
   color: #fff;
   padding: 10px 30px;
   margin: 20px auto;
+  box-shadow: 3px 3px 0 rgba(74, 225, 94, 1);
+  border: none;
+  border-radius: 10px;
+  font-size: 20px;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-style: italic;
 `;
 
 const NumberInput = styled.input`
@@ -113,7 +128,7 @@ const DollarSign = styled.span`
 `;
 
 const Bubble = styled.span`
-  background-color: ${(props) => (!props.selected ? "#eaeaea" : "#f79677")};
+  background-color: ${(props) => (!props.selected ? '#eaeaea' : '#f79677')};
   padding: 8px 15px;
   border-radius: 18px;
   margin: 5px;
@@ -125,6 +140,20 @@ const BubbleHolder = styled.div`
   flex-direction: row;
   justify-content: flex-start;
   flex-wrap: wrap;
+`;
+
+const Footer = styled.div`
+  width: 100%;
+  border-top: 1px solid #eaeaea;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  padding: 10px 0;
+  align-items: center;
+
+  p {
+    font-size: 12px;
+  }
 `;
 
 const reducer = (state, action) => {
@@ -159,10 +188,10 @@ interface LunchMoneyCategory {
 const Home: React.FC = () => {
   const [amount, setAmount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [favs, setFavs] = useState<boolean>(false);
+  const [favs, showFavs] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [cats, setCats] = useState<Array<LunchMoneyCategory>>(null);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string>('');
   const [categoryID, setCategoryID] = useState<number | null>(null);
   const [negative, setNegative] = useState<boolean>(false);
 
@@ -173,18 +202,20 @@ const Home: React.FC = () => {
   const [favCats, dispatch] = useReducer(reducer, favoriteCategories);
 
   const downloadCats = async () => {
-    await fetch("/api/getCat")
+    await fetch('/api/getCat')
       .then((result) => result.json())
       .then((result: any) => {
         setCats(result.categories);
       })
       .catch((err) => {
         setError(
-          "Something went wrong downloading categories. You might check your network connection, or your API key"
+          'Something went wrong downloading categories. You might check your network connection, or your API key'
         );
         setCats(null);
       });
   };
+
+  // everything related to clicking on a cateogry, or long-pressing
 
   useEffect(() => {
     downloadCats();
@@ -198,18 +229,18 @@ const Home: React.FC = () => {
       return;
     } else {
       var now = dayjs();
-      await fetch("/api/add", {
-        method: "POST",
+      await fetch('/api/add', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           transactions: [
             {
               amount: amount,
               category_id: categoryID,
-              date: now.format("YYYY-MM-DD").toString(),
-              payee: "CASH",
+              date: now.format('YYYY-MM-DD').toString(),
+              payee: 'CASH',
             },
           ],
         }),
@@ -234,10 +265,9 @@ const Home: React.FC = () => {
 
       <MainContainer>
         <h1>Coin Purse</h1>
-        {success && <span>we good</span>}
         {cats === null && <span>Loading...</span>}
         {error.length > 0 && <span>{error}</span>}
-        <label htmlFor="lineItem">Cash Entry:</label>
+        <label htmlFor='lineItem'>Cash Entry:</label>
         <InputWrapper>
           <TheSingleStepper>
             <ValueChange
@@ -252,13 +282,21 @@ const Home: React.FC = () => {
           </TheSingleStepper>
           <DollarSign>$</DollarSign>
           <NumberInput
-            id="lineItem"
-            type="number"
+            id='lineItem'
             ref={amountRef}
-            pattern="\d*"
-            onChange={(e) => setAmount(parseInt(e.target.value))}
+            value={amount.toString()}
+            onChange={(e) => setAmount(parseFloat(e.target.value))}
           />
         </InputWrapper>
+        <MoneyAdder>
+          <div style={{ alignSelf: 'center', margin: '0 5px 0 0' }}>
+            Quick Entry:
+          </div>
+          <span onClick={() => setAmount(amount + 1)}>$1</span>
+          <span onClick={() => setAmount(amount + 2)}>$2</span>
+          <span onClick={() => setAmount(amount + 5)}>$5</span>
+          <span onClick={() => setAmount(amount + 10)}>$10</span>
+        </MoneyAdder>
         {favCats.categories.length > 0 && (
           <BubbleHolder>
             {favCats.categories.map((cat) => {
@@ -274,66 +312,37 @@ const Home: React.FC = () => {
             })}
           </BubbleHolder>
         )}
-        <label htmlFor="categorySelect">
-          <span>Category:</span>{" "}
-          <span
-            style={{
-              fontWeight: 400,
-              fontSize: "12px",
-              marginLeft: "auto",
-            }}
-            onClick={() => setFavs(!favs)}
-          >
-            Set Favs
-          </span>
-        </label>
-        {favs &&
-          cats !== null &&
-          cats.map((category, i) => (
-            <FavSelector key={i} odd={i & 1 && true}>
-              <label
-                style={{
-                  width: "200px",
-                }}
-                htmlFor="categorySelect"
+        {cats !== null ? (
+          <CategoryHolder>
+            {cats.map((category, i) => (
+              <CategorySelector
+                key={i}
+                value={category.id}
+                selected={categoryID === category.id}
+                dimmed={categoryID !== category.id && categoryID !== null}
+                onClick={() => setCategoryID(category.id)}
               >
+                {favCats.categories.filter((cat) => cat.id === category.id)
+                  .length > 0 && <span>😍</span>}
                 {category.name}
-              </label>
-              <input
-                type="checkbox"
-                style={{ width: "18px", height: "20px" }}
-                onChange={() =>
-                  dispatch({
-                    value: {
-                      id: category.id,
-                      name: category.name,
-                    },
-                  })
-                }
-              ></input>
-            </FavSelector>
-          ))}
-        <select
-          onChange={(e) => setCategoryID(parseInt(e.target.value))}
-          id="categorySelect"
-        >
-          {cats !== null ? (
-            cats.map((category, i) => (
-              <option key={i} value={category.id}>
-                {category.name}
-              </option>
-            ))
-          ) : (
-            <option>Loading</option>
-          )}
-        </select>
-        <Button onClick={() => insertTransaction()}>Add</Button>
+              </CategorySelector>
+            ))}
+          </CategoryHolder>
+        ) : (
+          <CategorySelector>Loading...</CategorySelector>
+        )}
+        <Button onClick={() => insertTransaction()}>Add Transaction</Button>
       </MainContainer>
 
       <Footer>
-        <a href="https://derekr.net" target="_blank" rel="noopener noreferrer">
+        <a href='https://derekr.net' target='_blank' rel='noopener noreferrer'>
           team fun
         </a>
+        <p>
+          A really basic app that sends a cash transaction (probably) to{' '}
+          <a href='https://lunchmoney.app/'>Lunch Money</a>. It’s all stored
+          right on your phone once you add your api key, and it “just works.”
+        </p>
       </Footer>
     </AppContainer>
   );
