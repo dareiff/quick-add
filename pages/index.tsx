@@ -110,6 +110,33 @@ const Button = styled.button`
   font-style: italic;
 `;
 
+const TinyField = styled.input`
+  box-shadow: 3px 3px 0 rgba(74, 225, 94, 1);
+  border: 4px solid #404040;
+  padding: 5px 10px;
+  margin: auto 10px;
+  display: inline;
+  color: #404040;
+  font-weight: 600;
+  background-color: #fff;
+  border-radius: 10px;
+`;
+
+const TinyButton = styled.button`
+  background-color: #404040;
+  color: #fff;
+  padding: 5px 10px;
+  margin: auto 10px;
+  box-shadow: 3px 3px 0 rgba(74, 225, 94, 1);
+  border: none;
+  border-radius: 10px;
+  display: inline-block;
+  font-size: 16px;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-style: italic;
+`;
+
 const NumberInput = styled.input`
   font-size: 20px;
   border: none;
@@ -126,19 +153,9 @@ const DollarSign = styled.span`
   font-size: 22px;
 `;
 
-const Bubble = styled.span`
-  background-color: ${(props) => (!props.selected ? '#eaeaea' : '#f79677')};
-  padding: 8px 15px;
-  border-radius: 18px;
-  margin: 5px;
-`;
-
-const BubbleHolder = styled.div`
-  margin: 10px 0;
+const SuccessHolder = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
-  flex-wrap: wrap;
 `;
 
 const Footer = styled.div`
@@ -163,10 +180,7 @@ const reducer = (state, action) => {
     return { categories: filterCats };
   } else {
     return {
-      categories: [
-        { id: action.value.id, name: action.value.name },
-        ...state.categories,
-      ],
+      categories: [action.value, ...state.categories],
     };
   }
 };
@@ -185,13 +199,17 @@ interface LunchMoneyCategory {
 }
 
 const Home: React.FC = () => {
+  const [authenticated, setAuthenticated] = useState<boolean>(false);
   const [amount, setAmount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [favs, showFavs] = useState<boolean>(false);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const [cats, setCats] = useState<Array<LunchMoneyCategory>>(null);
   const [error, setError] = useState<string>('');
-  const [categoryID, setCategoryID] = useState<number | null>(null);
+  const [category, setChosenCategory] = useState<LunchMoneyCategory | null>(
+    null
+  );
   const [negative, setNegative] = useState<boolean>(false);
 
   const amountRef = createRef<HTMLInputElement>();
@@ -200,13 +218,15 @@ const Home: React.FC = () => {
 
   const [favCats, dispatch] = useReducer(reducer, favoriteCategories);
 
-  const downloadCats = async () => {
-    await fetch('/api/getCat')
+  const downloadCats = async (accessToken) => {
+    await fetch('/api/getCat', {
+      body: JSON.stringify({ accessToken: accessToken }),
+    })
       .then((result) => result.json())
       .then((result: any) => {
         setCats(result.categories);
       })
-      .catch((err) => {
+      .catch(() => {
         setError(
           'Something went wrong downloading categories. You might check your network connection, or your API key'
         );
@@ -217,13 +237,22 @@ const Home: React.FC = () => {
   // everything related to clicking on a cateogry, or long-pressing
 
   useEffect(() => {
-    downloadCats();
+    const accessToken = localStorage.getItem('access_token');
+    downloadCats(accessToken);
+    console.log(accessToken);
     amountRef.current.focus();
-  }, []);
+  }, [accessToken]);
+
+  const addAccessToken = async (e) => {
+    e.preventDefault();
+    console.log(e);
+    setAccessToken(e.target.value);
+    localStorage.setItem('access_token', e.target.value);
+  };
 
   const insertTransaction = async () => {
     setLoading(true);
-    if (amount === 0 || categoryID === null) {
+    if (amount === 0 || category === null) {
       setLoading(false);
       return;
     } else {
@@ -237,7 +266,7 @@ const Home: React.FC = () => {
           transactions: [
             {
               amount: amount,
-              category_id: categoryID,
+              category_id: category.id,
               date: now.format('YYYY-MM-DD').toString(),
               payee: 'CASH',
             },
@@ -264,6 +293,14 @@ const Home: React.FC = () => {
 
       <MainContainer>
         <h1>Coin Purse</h1>
+
+        {!authenticated && (
+          <div>
+            <h2 style={{ fontSize: '18px' }}>SETUP: Add access token</h2>
+            <TinyField placeholder='accesstoken' type='text' />
+            <TinyButton onClick={(e) => addAccessToken(e)}>Add</TinyButton>
+          </div>
+        )}
         {cats === null && <span>Loading...</span>}
         {error.length > 0 && <span>{error}</span>}
         <label htmlFor='lineItem'>Cash Entry:</label>
@@ -296,39 +333,67 @@ const Home: React.FC = () => {
           <span onClick={() => setAmount(amount + 5)}>$5</span>
           <span onClick={() => setAmount(amount + 10)}>$10</span>
         </MoneyAdder>
-        {favCats.categories.length > 0 && (
-          <BubbleHolder>
+        {success && (
+          <SuccessHolder>
+            <p>
+              Want to add that category to favorites? (Everything else will be
+              collapsed by default afterward, but you can always unfurl it.)
+            </p>
+            <TinyButton
+              onClick={() => {
+                dispatch({
+                  value: category,
+                });
+                setSuccess(false);
+              }}
+            >
+              Yep!
+            </TinyButton>
+            <TinyButton onClick={() => setSuccess(false)}>Nope!!</TinyButton>
+          </SuccessHolder>
+        )}
+        <a
+          style={{ textAlign: 'left', fontWeight: 'bold' }}
+          onClick={() => showFavs(!favs)}
+        >
+          Toggle all categories
+        </a>
+        {favs && <h2>Favorites:</h2>}
+        {favCats.categories.length > 0 && favs && (
+          <CategoryHolder>
             {favCats.categories.map((cat) => {
               return (
-                <Bubble
-                  selected={categoryID === cat.id}
+                <CategorySelector
+                  selected={category.id === cat.id}
                   key={cat.id}
-                  onClick={() => setCategoryID(cat.id)}
+                  onClick={() => setChosenCategory(cat)}
                 >
                   {cat.name}
-                </Bubble>
+                </CategorySelector>
               );
             })}
-          </BubbleHolder>
+          </CategoryHolder>
         )}
-        {cats !== null ? (
+        {cats !== null && !favs && (
           <CategoryHolder>
-            {cats.map((category, i) => (
+            {cats.map((catone, i) => (
               <CategorySelector
                 key={i}
-                value={category.id}
-                selected={categoryID === category.id}
-                dimmed={categoryID !== category.id && categoryID !== null}
-                onClick={() => setCategoryID(category.id)}
+                value={catone.id}
+                selected={category !== null && category.id === catone.id}
+                dimmed={
+                  category !== null &&
+                  category.id !== catone.id &&
+                  category !== null
+                }
+                onClick={() => setChosenCategory(catone)}
               >
-                {favCats.categories.filter((cat) => cat.id === category.id)
+                {favCats.categories.filter((cat) => cat.id === catone.id)
                   .length > 0 && <span>😍</span>}
-                {category.name}
+                {catone.name}
               </CategorySelector>
             ))}
           </CategoryHolder>
-        ) : (
-          <CategorySelector>Loading...</CategorySelector>
         )}
         <Button onClick={() => insertTransaction()}>Add Transaction</Button>
       </MainContainer>
