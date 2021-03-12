@@ -41,8 +41,7 @@ const CategorySelector = styled.div`
 
 const InputWrapper = styled.div`
   width: 100%;
-  text-align: left;
-  border: 2px solid #404040;
+  border: 1px solid #404040;
   font-size: 22px;
   border-radius: 5px;
   padding: 5px 10px;
@@ -128,7 +127,7 @@ const TinyButton = styled.button`
   padding: 5px 10px;
   margin: auto 10px;
   box-shadow: 3px 3px 0 rgba(74, 225, 94, 1);
-  border: none;
+  border: 3px solid #404040;
   border-radius: 10px;
   display: inline-block;
   font-size: 16px;
@@ -203,7 +202,7 @@ const Home: React.FC = () => {
   const [amount, setAmount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [favs, showFavs] = useState<boolean>(false);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [accessTokenInState, setAccessToken] = useState<string>('');
   const [success, setSuccess] = useState<boolean>(false);
   const [cats, setCats] = useState<Array<LunchMoneyCategory>>(null);
   const [error, setError] = useState<string>('');
@@ -213,14 +212,15 @@ const Home: React.FC = () => {
   const [negative, setNegative] = useState<boolean>(false);
 
   const amountRef = createRef<HTMLInputElement>();
+  const accessRef = createRef<HTMLInputElement>();
 
   const favoriteCategories = { categories: [] };
 
   const [favCats, dispatch] = useReducer(reducer, favoriteCategories);
 
-  const downloadCats = async (accessToken) => {
+  const downloadCats = async (at) => {
     await fetch('/api/getCat', {
-      body: JSON.stringify({ accessToken: accessToken }),
+      body: JSON.stringify({ accessToken: at }),
     })
       .then((result) => result.json())
       .then((result: any) => {
@@ -237,15 +237,18 @@ const Home: React.FC = () => {
   // everything related to clicking on a cateogry, or long-pressing
 
   useEffect(() => {
+    if (accessTokenInState.length === 0) {
+      return;
+    }
     const accessToken = localStorage.getItem('access_token');
     downloadCats(accessToken);
     console.log(accessToken);
     amountRef.current.focus();
-  }, [accessToken]);
+  }, [accessTokenInState]);
 
-  const addAccessToken = async (e) => {
+  const addAccessTokenFromHTMLElement = async (e) => {
     e.preventDefault();
-    console.log(e);
+    console.log(e.target.value);
     setAccessToken(e.target.value);
     localStorage.setItem('access_token', e.target.value);
   };
@@ -296,106 +299,128 @@ const Home: React.FC = () => {
 
         {!authenticated && (
           <div>
-            <h2 style={{ fontSize: '18px' }}>SETUP: Add access token</h2>
-            <TinyField placeholder='accesstoken' type='text' />
-            <TinyButton onClick={(e) => addAccessToken(e)}>Add</TinyButton>
-          </div>
-        )}
-        {cats === null && <span>Loading...</span>}
-        {error.length > 0 && <span>{error}</span>}
-        <label htmlFor='lineItem'>Cash Entry:</label>
-        <InputWrapper>
-          <TheSingleStepper>
-            <ValueChange
-              onClick={() => setNegative(false)}
-              selected={!negative}
-            >
-              +
-            </ValueChange>
-            <ValueChange onClick={() => setNegative(true)} selected={negative}>
-              -
-            </ValueChange>
-          </TheSingleStepper>
-          <DollarSign>$</DollarSign>
-          <NumberInput
-            id='lineItem'
-            ref={amountRef}
-            value={amount.toString()}
-            onChange={(e) => setAmount(parseFloat(e.target.value))}
-          />
-        </InputWrapper>
-        <MoneyAdder>
-          <div style={{ alignSelf: 'center', margin: '0 5px 0 0' }}>
-            Quick Entry:
-          </div>
-          <span onClick={() => setAmount(amount + 1)}>$1</span>
-          <span onClick={() => setAmount(amount + 2)}>$2</span>
-          <span onClick={() => setAmount(amount + 5)}>$5</span>
-          <span onClick={() => setAmount(amount + 10)}>$10</span>
-        </MoneyAdder>
-        {success && (
-          <SuccessHolder>
+            <h2 style={{ fontSize: '18px', textAlign: 'center' }}>
+              Dev Access Token
+            </h2>
             <p>
-              Want to add that category to favorites? (Everything else will be
-              collapsed by default afterward, but you can always unfurl it.)
+              In order to get this sucker working, we’ll need a developer access
+              token to lunch money.
             </p>
-            <TinyButton
-              onClick={() => {
-                dispatch({
-                  value: category,
-                });
-                setSuccess(false);
-              }}
-            >
-              Yep!
+            <TinyField placeholder='accesstoken' type='text' ref={accessRef} />
+            <TinyButton onClick={(e) => addAccessTokenFromHTMLElement(e)}>
+              Add
             </TinyButton>
-            <TinyButton onClick={() => setSuccess(false)}>Nope!!</TinyButton>
-          </SuccessHolder>
+          </div>
         )}
-        <a
-          style={{ textAlign: 'left', fontWeight: 'bold' }}
-          onClick={() => showFavs(!favs)}
-        >
-          Toggle all categories
-        </a>
-        {favs && <h2>Favorites:</h2>}
-        {favCats.categories.length > 0 && favs && (
-          <CategoryHolder>
-            {favCats.categories.map((cat) => {
-              return (
-                <CategorySelector
-                  selected={category.id === cat.id}
-                  key={cat.id}
-                  onClick={() => setChosenCategory(cat)}
+        {authenticated && (
+          <div>
+            <div>
+              {error.length > 0 && accessTokenInState.length !== 0 && (
+                <span>{error}</span>
+              )}
+            </div>
+
+            <label htmlFor='lineItem'>Cash Entry:</label>
+            <InputWrapper>
+              <TheSingleStepper>
+                <ValueChange
+                  onClick={() => setNegative(false)}
+                  selected={!negative}
                 >
-                  {cat.name}
-                </CategorySelector>
-              );
-            })}
-          </CategoryHolder>
+                  +
+                </ValueChange>
+                <ValueChange
+                  onClick={() => setNegative(true)}
+                  selected={negative}
+                >
+                  -
+                </ValueChange>
+              </TheSingleStepper>
+              <DollarSign>$</DollarSign>
+              <NumberInput
+                id='lineItem'
+                ref={amountRef}
+                value={amount.toString()}
+                onChange={(e) => setAmount(parseFloat(e.target.value))}
+              />
+            </InputWrapper>
+            <MoneyAdder>
+              <div style={{ alignSelf: 'center', margin: '0 5px 0 0' }}>
+                Quick Entry:
+              </div>
+              <span onClick={() => setAmount(amount + 1)}>$1</span>
+              <span onClick={() => setAmount(amount + 2)}>$2</span>
+              <span onClick={() => setAmount(amount + 5)}>$5</span>
+              <span onClick={() => setAmount(amount + 10)}>$10</span>
+            </MoneyAdder>
+            {success && (
+              <SuccessHolder>
+                <p>
+                  Want to add that category to favorites? (Everything else will
+                  be collapsed by default afterward, but you can always unfurl
+                  it.)
+                </p>
+                <TinyButton
+                  onClick={() => {
+                    dispatch({
+                      value: category,
+                    });
+                    setSuccess(false);
+                  }}
+                >
+                  Yep!
+                </TinyButton>
+                <TinyButton onClick={() => setSuccess(false)}>
+                  Nope!!
+                </TinyButton>
+              </SuccessHolder>
+            )}
+            <a
+              style={{ textAlign: 'left', fontWeight: 'bold' }}
+              onClick={() => showFavs(!favs)}
+            >
+              Toggle all categories
+            </a>
+            {favs && <h2>Favorites:</h2>}
+            {favCats.categories.length > 0 && favs && (
+              <CategoryHolder>
+                {favCats.categories.map((cat) => {
+                  return (
+                    <CategorySelector
+                      selected={category.id === cat.id}
+                      key={cat.id}
+                      onClick={() => setChosenCategory(cat)}
+                    >
+                      {cat.name}
+                    </CategorySelector>
+                  );
+                })}
+              </CategoryHolder>
+            )}
+            {cats !== null && !favs && (
+              <CategoryHolder>
+                {cats.map((catone, i) => (
+                  <CategorySelector
+                    key={i}
+                    value={catone.id}
+                    selected={category !== null && category.id === catone.id}
+                    dimmed={
+                      category !== null &&
+                      category.id !== catone.id &&
+                      category !== null
+                    }
+                    onClick={() => setChosenCategory(catone)}
+                  >
+                    {favCats.categories.filter((cat) => cat.id === catone.id)
+                      .length > 0 && <span>😍</span>}
+                    {catone.name}
+                  </CategorySelector>
+                ))}
+              </CategoryHolder>
+            )}
+            <Button onClick={() => insertTransaction()}>Add Transaction</Button>
+          </div>
         )}
-        {cats !== null && !favs && (
-          <CategoryHolder>
-            {cats.map((catone, i) => (
-              <CategorySelector
-                key={i}
-                value={catone.id}
-                selected={category !== null && category.id === catone.id}
-                dimmed={
-                  category !== null &&
-                  category.id !== catone.id &&
-                  category !== null
-                }
-                onClick={() => setChosenCategory(catone)}
-              >
-                {favCats.categories.filter((cat) => cat.id === catone.id)
-                  .length > 0 && <span>😍</span>}
-                {catone.name}
-              </CategorySelector>
-            ))}
-          </CategoryHolder>
-        )}
-        <Button onClick={() => insertTransaction()}>Add Transaction</Button>
       </MainContainer>
 
       <Footer>
