@@ -234,7 +234,7 @@ const Home: React.FC = () => {
       });
   };
 
-  // everything related to clicking on a cateogry, or long-pressing
+  // everything related to clicking on a category, or long-pressing
 
   useEffect(() => {
     if (accessTokenInState.length === 0) {
