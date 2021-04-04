@@ -345,13 +345,13 @@ const Home: React.FC = () => {
   return (
     <AppContainer>
       <Head>
-        <title>Coin Purse</title>
+        <title>Milk Money</title>
       </Head>
 
       <MainContainer>
         <HeaderContainer>
           <span>&nbsp;</span>
-          <h1>Coin Purse</h1>
+          <h1>Milk Money</h1>
           <Gear onClick={() => showSettings(!settings)}>⚙️</Gear>
         </HeaderContainer>
 
