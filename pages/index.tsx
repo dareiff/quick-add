@@ -237,6 +237,13 @@ const Home: React.FC = () => {
   // everything related to clicking on a category, or long-pressing
 
   useEffect(() => {
+    //try to get localstorage
+    if (localStorage.getItem('access_token') !== null) {
+      console.log('we got here');
+    }
+  }, []);
+
+  useEffect(() => {
     if (accessTokenInState.length === 0) {
       return;
     }
