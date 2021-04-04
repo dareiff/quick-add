@@ -1,7 +1,8 @@
 import Head from 'next/head';
-import { createRef, useEffect, useReducer, useState } from 'react';
+import React, { createRef, useEffect, useReducer, useState } from 'react';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
+import { access } from 'node:fs';
 
 const MoneyAdder = styled.div`
   display: flex;
@@ -20,23 +21,43 @@ const MoneyAdder = styled.div`
   }
 `;
 
+const Gear = styled.div`
+  font-size: 22px;
+  justify-self: flex-end;
+`;
+
+const HeaderContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  h1 {
+    margin: 10px 20px;
+  }
+`;
+
 const CategoryHolder = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
 `;
 
-const CategorySelector = styled.div`
+interface CategoryI {
+  selected: boolean;
+  dimmed: boolean;
+}
+const CategorySelector = styled.div<CategoryI>`
   display: inline;
   padding: 5px 10px;
   margin: 5px 8px 5px 0;
   font-size: 14px;
   cursor: pointer;
-  background-color: ${(props) =>
+  background-color: ${(props: CategoryI) =>
     props.selected ? 'rgba(74, 225, 94, 1.00)' : 'rgba(255, 205, 1, .20)'};
   border-radius: 8px;
-  color: ${(props) => (props.dimmed ? '#909090' : '#202020')};
-  font-weight: ${(props) => (props.selected ? 600 : 400)};
+  color: ${(props: CategoryI) => (props.dimmed ? '#909090' : '#202020')};
+  font-weight: ${(props: CategoryI) => (props.selected ? 600 : 400)};
 `;
 
 const InputWrapper = styled.div`
@@ -171,10 +192,12 @@ const Footer = styled.div`
   }
 `;
 
-const reducer = (state, action) => {
-  if (state.categories.filter((cat) => cat.id === action.value.id).length > 0) {
+const reducer = (state: any, action: any) => {
+  if (
+    state.categories.filter((cat: any) => cat.id === action.value.id).length > 0
+  ) {
     const filterCats = state.categories.filter(
-      (currentFavorite) => currentFavorite.id !== action.value.id
+      (currentFavorite: any) => currentFavorite.id !== action.value.id
     );
     return { categories: filterCats };
   } else {
@@ -204,11 +227,12 @@ const Home: React.FC = () => {
   const [favs, showFavs] = useState<boolean>(false);
   const [accessTokenInState, setAccessToken] = useState<string>('');
   const [success, setSuccess] = useState<boolean>(false);
-  const [cats, setCats] = useState<Array<LunchMoneyCategory>>(null);
+  const [cats, setCats] = useState<Array<LunchMoneyCategory> | null>(null);
   const [error, setError] = useState<string>('');
   const [category, setChosenCategory] = useState<LunchMoneyCategory | null>(
     null
   );
+  const [settings, showSettings] = useState<boolean>(false);
   const [negative, setNegative] = useState<boolean>(false);
 
   const amountRef = createRef<HTMLInputElement>();
@@ -218,12 +242,19 @@ const Home: React.FC = () => {
 
   const [favCats, dispatch] = useReducer(reducer, favoriteCategories);
 
-  const downloadCats = async (at) => {
-    await fetch('/api/getCat', {
-      body: JSON.stringify({ accessToken: at }),
+  const downloadCats = async (at: string) => {
+    console.log('are we doing this?');
+
+    await fetch('https://dev.lunchmoney.app/v1/categories', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + at,
+      },
+      method: 'GET',
     })
       .then((result) => result.json())
       .then((result: any) => {
+        console.log('did we get anything?');
         setCats(result.categories);
       })
       .catch(() => {
@@ -234,48 +265,62 @@ const Home: React.FC = () => {
       });
   };
 
-  // everything related to clicking on a category, or long-pressing
-
   useEffect(() => {
     //try to get localstorage
-    if (localStorage.getItem('access_token') !== null) {
-      console.log('we got here');
+    if (localStorage.getItem('access_token') === null) {
+      console.log('We need to ask for their accessToken');
+      return;
+    } else if (localStorage.getItem('access_token')) {
+      setAccessToken(localStorage.getItem('access_token'));
     }
   }, []);
 
   useEffect(() => {
+    //this is what we do AFTER they press the button to add the accesstoken to local state
+    if (accessTokenInState.length === 0) {
+      return;
+    } else if (accessTokenInState.length > 1) {
+      setAccessToken(localStorage.getItem('access_token'));
+      setAuthenticated(true);
+    }
+  }, [accessTokenInState]);
+
+  useEffect(() => {
+    //this is what we do when the accessToken is in state and
+    //we want to download the categories
     if (accessTokenInState.length === 0) {
       return;
     }
-    const accessToken = localStorage.getItem('access_token');
-    downloadCats(accessToken);
-    console.log(accessToken);
-    amountRef.current.focus();
+    downloadCats(accessTokenInState);
   }, [accessTokenInState]);
 
-  const addAccessTokenFromHTMLElement = async (e) => {
-    e.preventDefault();
-    console.log(e.target.value);
-    setAccessToken(e.target.value);
-    localStorage.setItem('access_token', e.target.value);
+  const addAccessTokenFromHTMLElement = async () => {
+    if (accessRef.current !== null) {
+      setAccessToken(accessRef.current.value);
+      setAuthenticated(true);
+      localStorage.setItem('access_token', accessRef.current.value);
+    }
   };
 
   const insertTransaction = async () => {
     setLoading(true);
+
     if (amount === 0 || category === null) {
       setLoading(false);
       return;
     } else {
       var now = dayjs();
-      await fetch('/api/add', {
+      await fetch('https://dev.lunchmoney.app/v1/transactions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + accessTokenInState,
         },
         body: JSON.stringify({
+          debit_as_negative: true,
           transactions: [
             {
-              amount: amount,
+              amount: negative ? `-${amount}` : amount,
               category_id: category.id,
               date: now.format('YYYY-MM-DD').toString(),
               payee: 'CASH',
@@ -283,6 +328,7 @@ const Home: React.FC = () => {
           ],
         }),
       })
+        .then((result) => result.json())
         .then((res) => {
           console.log(res);
           setLoading(false);
@@ -291,6 +337,8 @@ const Home: React.FC = () => {
         })
         .catch((err) => {
           console.log(err);
+          setLoading(false);
+          setError('error when inserting transaction');
         });
     }
   };
@@ -302,30 +350,48 @@ const Home: React.FC = () => {
       </Head>
 
       <MainContainer>
-        <h1>Coin Purse</h1>
+        <HeaderContainer>
+          <span>&nbsp;</span>
+          <h1>Coin Purse</h1>
+          <Gear onClick={() => showSettings(!settings)}>⚙️</Gear>
+        </HeaderContainer>
 
-        {!authenticated && (
-          <div>
-            <h2 style={{ fontSize: '18px', textAlign: 'center' }}>
-              Dev Access Token
-            </h2>
-            <p>
-              In order to get this sucker working, we’ll need a developer access
-              token to lunch money.
-            </p>
-            <TinyField placeholder='accesstoken' type='text' ref={accessRef} />
-            <TinyButton onClick={(e) => addAccessTokenFromHTMLElement(e)}>
-              Add
-            </TinyButton>
+        {(!authenticated || settings) && (
+          <div style={{ width: '100%', margin: '20px 0' }}>
+            <h2>Settings:</h2>
+            <p>Use your own access token to get started.</p>
+            {accessTokenInState.length === 0 ? (
+              <div>
+                <TinyField
+                  placeholder='accesstoken'
+                  type='text'
+                  ref={accessRef}
+                />
+                <TinyButton onClick={() => addAccessTokenFromHTMLElement()}>
+                  Add
+                </TinyButton>
+              </div>
+            ) : (
+              <div>
+                <span>{accessTokenInState.substring(0, 20)}...</span>
+                <TinyButton
+                  onClick={() => {
+                    localStorage.removeItem('access_token');
+                    setAccessToken('');
+                    setAuthenticated(false);
+                  }}
+                >
+                  Delete
+                </TinyButton>
+              </div>
+            )}
           </div>
         )}
         {authenticated && (
           <div>
-            <div>
-              {error.length > 0 && accessTokenInState.length !== 0 && (
-                <span>{error}</span>
-              )}
-            </div>
+            {error.length > 0 && accessTokenInState.length !== 0 && (
+              <p>{error}</p>
+            )}
 
             <label htmlFor='lineItem'>Cash Entry:</label>
             <InputWrapper>
@@ -348,7 +414,9 @@ const Home: React.FC = () => {
                 id='lineItem'
                 ref={amountRef}
                 value={amount.toString()}
-                onChange={(e) => setAmount(parseFloat(e.target.value))}
+                onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                  setAmount(parseFloat(e.currentTarget.value))
+                }
               />
             </InputWrapper>
             <MoneyAdder>

@@ -1,14 +1,7 @@
-<<<<<<< Updated upstream:public/workbox-d6d90c3a.js
-define("./workbox-d6d90c3a.js",['exports'], function (exports) { 'use strict';
-
-    try {
-      self['workbox:core:6.1.1'] && _();
-=======
 define("./workbox-36aad3af.js",['exports'], function (exports) { 'use strict';
 
     try {
       self['workbox:core:6.1.2'] && _();
->>>>>>> Stashed changes:public/workbox-36aad3af.js
     } catch (e) {}
 
     /*
@@ -483,11 +476,7 @@ define("./workbox-36aad3af.js",['exports'], function (exports) { 'use strict';
     };
 
     try {
-<<<<<<< Updated upstream:public/workbox-d6d90c3a.js
-      self['workbox:routing:6.1.1'] && _();
-=======
       self['workbox:routing:6.1.2'] && _();
->>>>>>> Stashed changes:public/workbox-36aad3af.js
     } catch (e) {}
 
     /*
@@ -2538,11 +2527,6 @@ define("./workbox-36aad3af.js",['exports'], function (exports) { 'use strict';
       }
     }
 
-<<<<<<< Updated upstream:public/workbox-d6d90c3a.js
-    try {
-      self['workbox:strategies:6.1.1'] && _();
-    } catch (e) {}
-=======
     /*
       Copyright 2019 Google LLC
       Use of this source code is governed by an MIT-style
@@ -2561,7 +2545,6 @@ define("./workbox-36aad3af.js",['exports'], function (exports) { 'use strict';
     function timeout(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
->>>>>>> Stashed changes:public/workbox-36aad3af.js
 
     function toRequest(input) {
       return typeof input === 'string' ? new Request(input) : input;
@@ -3741,8 +3724,4 @@ define("./workbox-36aad3af.js",['exports'], function (exports) { 'use strict';
     exports.registerRoute = registerRoute;
 
 });
-<<<<<<< Updated upstream:public/workbox-d6d90c3a.js
-//# sourceMappingURL=workbox-d6d90c3a.js.map
-=======
 //# sourceMappingURL=workbox-36aad3af.js.map
->>>>>>> Stashed changes:public/workbox-36aad3af.js
