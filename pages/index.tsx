@@ -2,7 +2,6 @@ import Head from 'next/head';
 import React, { createRef, useEffect, useReducer, useState } from 'react';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
-import { access } from 'node:fs';
 
 const MoneyAdder = styled.div`
   display: flex;
