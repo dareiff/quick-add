@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { createRef, useEffect, useReducer, useState } from 'react';
+import React, { createRef, useEffect, useReducer, useState } from 'react';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
 
@@ -20,29 +20,48 @@ const MoneyAdder = styled.div`
   }
 `;
 
+const Gear = styled.div`
+  font-size: 22px;
+  justify-self: flex-end;
+`;
+
+const HeaderContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  h1 {
+    margin: 10px 20px;
+  }
+`;
+
 const CategoryHolder = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
 `;
 
-const CategorySelector = styled.div`
+interface CategoryI {
+  selected: boolean;
+  dimmed: boolean;
+}
+const CategorySelector = styled.div<CategoryI>`
   display: inline;
   padding: 5px 10px;
   margin: 5px 8px 5px 0;
   font-size: 14px;
   cursor: pointer;
-  background-color: ${(props) =>
+  background-color: ${(props: CategoryI) =>
     props.selected ? 'rgba(74, 225, 94, 1.00)' : 'rgba(255, 205, 1, .20)'};
   border-radius: 8px;
-  color: ${(props) => (props.dimmed ? '#909090' : '#202020')};
-  font-weight: ${(props) => (props.selected ? 600 : 400)};
+  color: ${(props: CategoryI) => (props.dimmed ? '#909090' : '#202020')};
+  font-weight: ${(props: CategoryI) => (props.selected ? 600 : 400)};
 `;
 
 const InputWrapper = styled.div`
   width: 100%;
-  text-align: left;
-  border: 2px solid #404040;
+  border: 1px solid #404040;
   font-size: 22px;
   border-radius: 5px;
   padding: 5px 10px;
@@ -110,6 +129,33 @@ const Button = styled.button`
   font-style: italic;
 `;
 
+const TinyField = styled.input`
+  box-shadow: 3px 3px 0 rgba(74, 225, 94, 1);
+  border: 4px solid #404040;
+  padding: 5px 10px;
+  margin: auto 10px;
+  display: inline;
+  color: #404040;
+  font-weight: 600;
+  background-color: #fff;
+  border-radius: 10px;
+`;
+
+const TinyButton = styled.button`
+  background-color: #404040;
+  color: #fff;
+  padding: 5px 10px;
+  margin: auto 10px;
+  box-shadow: 3px 3px 0 rgba(74, 225, 94, 1);
+  border: 3px solid #404040;
+  border-radius: 10px;
+  display: inline-block;
+  font-size: 16px;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-style: italic;
+`;
+
 const NumberInput = styled.input`
   font-size: 20px;
   border: none;
@@ -126,19 +172,9 @@ const DollarSign = styled.span`
   font-size: 22px;
 `;
 
-const Bubble = styled.span`
-  background-color: ${(props) => (!props.selected ? '#eaeaea' : '#f79677')};
-  padding: 8px 15px;
-  border-radius: 18px;
-  margin: 5px;
-`;
-
-const BubbleHolder = styled.div`
-  margin: 10px 0;
+const SuccessHolder = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
-  flex-wrap: wrap;
 `;
 
 const Footer = styled.div`
@@ -155,18 +191,17 @@ const Footer = styled.div`
   }
 `;
 
-const reducer = (state, action) => {
-  if (state.categories.filter((cat) => cat.id === action.value.id).length > 0) {
+const reducer = (state: any, action: any) => {
+  if (
+    state.categories.filter((cat: any) => cat.id === action.value.id).length > 0
+  ) {
     const filterCats = state.categories.filter(
-      (currentFavorite) => currentFavorite.id !== action.value.id
+      (currentFavorite: any) => currentFavorite.id !== action.value.id
     );
     return { categories: filterCats };
   } else {
     return {
-      categories: [
-        { id: action.value.id, name: action.value.name },
-        ...state.categories,
-      ],
+      categories: [action.value, ...state.categories],
     };
   }
 };
@@ -185,28 +220,43 @@ interface LunchMoneyCategory {
 }
 
 const Home: React.FC = () => {
+  const [authenticated, setAuthenticated] = useState<boolean>(false);
   const [amount, setAmount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [favs, showFavs] = useState<boolean>(false);
+  const [accessTokenInState, setAccessToken] = useState<string>('');
   const [success, setSuccess] = useState<boolean>(false);
-  const [cats, setCats] = useState<Array<LunchMoneyCategory>>(null);
+  const [cats, setCats] = useState<Array<LunchMoneyCategory> | null>(null);
   const [error, setError] = useState<string>('');
-  const [categoryID, setCategoryID] = useState<number | null>(null);
+  const [category, setChosenCategory] = useState<LunchMoneyCategory | null>(
+    null
+  );
+  const [settings, showSettings] = useState<boolean>(false);
   const [negative, setNegative] = useState<boolean>(false);
 
   const amountRef = createRef<HTMLInputElement>();
+  const accessRef = createRef<HTMLInputElement>();
 
   const favoriteCategories = { categories: [] };
 
   const [favCats, dispatch] = useReducer(reducer, favoriteCategories);
 
-  const downloadCats = async () => {
-    await fetch('/api/getCat')
+  const downloadCats = async (at: string) => {
+    console.log('are we doing this?');
+
+    await fetch('https://dev.lunchmoney.app/v1/categories', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + at,
+      },
+      method: 'GET',
+    })
       .then((result) => result.json())
       .then((result: any) => {
+        console.log('did we get anything?');
         setCats(result.categories);
       })
-      .catch((err) => {
+      .catch(() => {
         setError(
           'Something went wrong downloading categories. You might check your network connection, or your API key'
         );
@@ -214,36 +264,70 @@ const Home: React.FC = () => {
       });
   };
 
-  // everything related to clicking on a cateogry, or long-pressing
+  useEffect(() => {
+    //try to get localstorage
+    if (localStorage.getItem('access_token') === null) {
+      console.log('We need to ask for their accessToken');
+      return;
+    } else if (localStorage.getItem('access_token')) {
+      setAccessToken(localStorage.getItem('access_token'));
+    }
+  }, []);
 
   useEffect(() => {
-    downloadCats();
-    amountRef.current.focus();
-  }, []);
+    //this is what we do AFTER they press the button to add the accesstoken to local state
+    if (accessTokenInState.length === 0) {
+      return;
+    } else if (accessTokenInState.length > 1) {
+      setAccessToken(localStorage.getItem('access_token'));
+      setAuthenticated(true);
+    }
+  }, [accessTokenInState]);
+
+  useEffect(() => {
+    //this is what we do when the accessToken is in state and
+    //we want to download the categories
+    if (accessTokenInState.length === 0) {
+      return;
+    }
+    downloadCats(accessTokenInState);
+  }, [accessTokenInState]);
+
+  const addAccessTokenFromHTMLElement = async () => {
+    if (accessRef.current !== null) {
+      setAccessToken(accessRef.current.value);
+      setAuthenticated(true);
+      localStorage.setItem('access_token', accessRef.current.value);
+    }
+  };
 
   const insertTransaction = async () => {
     setLoading(true);
-    if (amount === 0 || categoryID === null) {
+
+    if (amount === 0 || category === null) {
       setLoading(false);
       return;
     } else {
       var now = dayjs();
-      await fetch('/api/add', {
+      await fetch('https://dev.lunchmoney.app/v1/transactions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + accessTokenInState,
         },
         body: JSON.stringify({
+          debit_as_negative: true,
           transactions: [
             {
-              amount: amount,
-              category_id: categoryID,
+              amount: negative ? `-${amount}` : amount,
+              category_id: category.id,
               date: now.format('YYYY-MM-DD').toString(),
               payee: 'CASH',
             },
           ],
         }),
       })
+        .then((result) => result.json())
         .then((res) => {
           console.log(res);
           setLoading(false);
@@ -252,6 +336,8 @@ const Home: React.FC = () => {
         })
         .catch((err) => {
           console.log(err);
+          setLoading(false);
+          setError('error when inserting transaction');
         });
     }
   };
@@ -263,74 +349,152 @@ const Home: React.FC = () => {
       </Head>
 
       <MainContainer>
-        <h1>Coin Purse</h1>
-        {cats === null && <span>Loading...</span>}
-        {error.length > 0 && <span>{error}</span>}
-        <label htmlFor='lineItem'>Cash Entry:</label>
-        <InputWrapper>
-          <TheSingleStepper>
-            <ValueChange
-              onClick={() => setNegative(false)}
-              selected={!negative}
-            >
-              +
-            </ValueChange>
-            <ValueChange onClick={() => setNegative(true)} selected={negative}>
-              -
-            </ValueChange>
-          </TheSingleStepper>
-          <DollarSign>$</DollarSign>
-          <NumberInput
-            id='lineItem'
-            ref={amountRef}
-            value={amount.toString()}
-            onChange={(e) => setAmount(parseFloat(e.target.value))}
-          />
-        </InputWrapper>
-        <MoneyAdder>
-          <div style={{ alignSelf: 'center', margin: '0 5px 0 0' }}>
-            Quick Entry:
-          </div>
-          <span onClick={() => setAmount(amount + 1)}>$1</span>
-          <span onClick={() => setAmount(amount + 2)}>$2</span>
-          <span onClick={() => setAmount(amount + 5)}>$5</span>
-          <span onClick={() => setAmount(amount + 10)}>$10</span>
-        </MoneyAdder>
-        {favCats.categories.length > 0 && (
-          <BubbleHolder>
-            {favCats.categories.map((cat) => {
-              return (
-                <Bubble
-                  selected={categoryID === cat.id}
-                  key={cat.id}
-                  onClick={() => setCategoryID(cat.id)}
+        <HeaderContainer>
+          <span>&nbsp;</span>
+          <h1>Coin Purse</h1>
+          <Gear onClick={() => showSettings(!settings)}>⚙️</Gear>
+        </HeaderContainer>
+
+        {(!authenticated || settings) && (
+          <div style={{ width: '100%', margin: '20px 0' }}>
+            <h2>Settings:</h2>
+            <p>Use your own access token to get started.</p>
+            {accessTokenInState.length === 0 ? (
+              <div>
+                <TinyField
+                  placeholder='accesstoken'
+                  type='text'
+                  ref={accessRef}
+                />
+                <TinyButton onClick={() => addAccessTokenFromHTMLElement()}>
+                  Add
+                </TinyButton>
+              </div>
+            ) : (
+              <div>
+                <span>{accessTokenInState.substring(0, 20)}...</span>
+                <TinyButton
+                  onClick={() => {
+                    localStorage.removeItem('access_token');
+                    setAccessToken('');
+                    setAuthenticated(false);
+                  }}
                 >
-                  {cat.name}
-                </Bubble>
-              );
-            })}
-          </BubbleHolder>
+                  Delete
+                </TinyButton>
+              </div>
+            )}
+          </div>
         )}
-        {cats !== null ? (
-          <CategoryHolder>
-            {cats.map((category, i) => (
-              <CategorySelector
-                key={i}
-                value={category.id}
-                selected={categoryID === category.id}
-                dimmed={categoryID !== category.id && categoryID !== null}
-                onClick={() => setCategoryID(category.id)}
-              >
-                {favCats.categories.filter((cat) => cat.id === category.id)
-                  .length > 0 && <span>😍</span>}
-                {category.name}
-              </CategorySelector>
-            ))}
-          </CategoryHolder>
-        ) : (
-          <CategorySelector>Loading...</CategorySelector>
+        {authenticated && (
+          <div>
+            {error.length > 0 && accessTokenInState.length !== 0 && (
+              <p>{error}</p>
+            )}
+
+            <label htmlFor='lineItem'>Cash Entry:</label>
+            <InputWrapper>
+              <TheSingleStepper>
+                <ValueChange
+                  onClick={() => setNegative(false)}
+                  selected={!negative}
+                >
+                  +
+                </ValueChange>
+                <ValueChange
+                  onClick={() => setNegative(true)}
+                  selected={negative}
+                >
+                  -
+                </ValueChange>
+              </TheSingleStepper>
+              <DollarSign>$</DollarSign>
+              <NumberInput
+                id='lineItem'
+                ref={amountRef}
+                value={amount.toString()}
+                onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                  setAmount(parseFloat(e.currentTarget.value))
+                }
+              />
+            </InputWrapper>
+            <MoneyAdder>
+              <div style={{ alignSelf: 'center', margin: '0 5px 0 0' }}>
+                Quick Entry:
+              </div>
+              <span onClick={() => setAmount(amount + 1)}>$1</span>
+              <span onClick={() => setAmount(amount + 2)}>$2</span>
+              <span onClick={() => setAmount(amount + 5)}>$5</span>
+              <span onClick={() => setAmount(amount + 10)}>$10</span>
+            </MoneyAdder>
+            {success && (
+              <SuccessHolder>
+                <p>
+                  Want to add that category to favorites? (Everything else will
+                  be collapsed by default afterward, but you can always unfurl
+                  it.)
+                </p>
+                <TinyButton
+                  onClick={() => {
+                    dispatch({
+                      value: category,
+                    });
+                    setSuccess(false);
+                  }}
+                >
+                  Yep!
+                </TinyButton>
+                <TinyButton onClick={() => setSuccess(false)}>
+                  Nope!!
+                </TinyButton>
+              </SuccessHolder>
+            )}
+            <a
+              style={{ textAlign: 'left', fontWeight: 'bold' }}
+              onClick={() => showFavs(!favs)}
+            >
+              Toggle all categories
+            </a>
+            {favs && <h2>Favorites:</h2>}
+            {favCats.categories.length > 0 && favs && (
+              <CategoryHolder>
+                {favCats.categories.map((cat) => {
+                  return (
+                    <CategorySelector
+                      selected={category.id === cat.id}
+                      key={cat.id}
+                      onClick={() => setChosenCategory(cat)}
+                    >
+                      {cat.name}
+                    </CategorySelector>
+                  );
+                })}
+              </CategoryHolder>
+            )}
+            {cats !== null && !favs && (
+              <CategoryHolder>
+                {cats.map((catone, i) => (
+                  <CategorySelector
+                    key={i}
+                    value={catone.id}
+                    selected={category !== null && category.id === catone.id}
+                    dimmed={
+                      category !== null &&
+                      category.id !== catone.id &&
+                      category !== null
+                    }
+                    onClick={() => setChosenCategory(catone)}
+                  >
+                    {favCats.categories.filter((cat) => cat.id === catone.id)
+                      .length > 0 && <span>😍</span>}
+                    {catone.name}
+                  </CategorySelector>
+                ))}
+              </CategoryHolder>
+            )}
+            <Button onClick={() => insertTransaction()}>Add Transaction</Button>
+          </div>
         )}
-        <Button onClick={() => insertTransaction()}>Add Transaction</Button>
       </MainContainer>
 
       <Footer>
