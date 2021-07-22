@@ -1,6 +1,4 @@
 module.exports = {
-  future: {
-    webpack5: true,
-  },
+  webpack5: true,
   // other next config
 };

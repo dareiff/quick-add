@@ -22,6 +22,7 @@ const MoneyAdder = styled.div`
 
 const Gear = styled.div`
   font-size: 22px;
+  cursor: pointer;
   justify-self: flex-end;
 `;
 
