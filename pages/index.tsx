@@ -499,13 +499,18 @@ const Home: React.FC = () => {
       </MainContainer>
 
       <Footer>
-        <a href='https://derekr.net' target='_blank' rel='noopener noreferrer'>
-          team fun
+        <a
+          href='https://fun-club.xyz'
+          target='_blank'
+          rel='noopener noreferrer'
+        >
+          a fun club project
         </a>
         <p>
           A really basic app that sends a cash transaction (probably) to{' '}
-          <a href='https://lunchmoney.app/'>Lunch Money</a>. It’s all stored
-          right on your phone once you add your api key, and it “just works.”
+          <a href='https://lunchmoney.app/?refer=eg3r4y7t'>Lunch Money</a>. It’s
+          all stored right on your phone once you add your api key, and it “just
+          works.”
         </p>
       </Footer>
     </AppContainer>
