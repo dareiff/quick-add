@@ -9,7 +9,7 @@ export interface AddI {
     payee: string;
 }
 
-export default (req: NextApiRequest, res: NextApiResponse) => {
+export default function add(req: NextApiRequest, res: NextApiResponse) {
     console.log(req.body);
     fetch('https://dev.lunchmoney.app/v1/transactions', {
         method: 'POST',
@@ -21,14 +21,14 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
             transactions: req.body.transactions,
         }),
     })
-        .then(result => result.json())
-        .then(result => {
+        .then((result) => result.json())
+        .then((result) => {
             console.log(result);
             res.status(200).json(result);
         })
-        .catch(err => {
+        .catch((err) => {
             console.log(err);
             res.statusCode = 300;
             res.json({ err });
         });
-};
+}
