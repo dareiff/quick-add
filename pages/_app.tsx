@@ -1,7 +1,14 @@
+import PlausibleProvider from 'next-plausible';
 import '../styles/globals.css';
 
-function MyApp({ Component, pageProps }) {
-    return <Component {...pageProps} />;
+export default function MyApp({ Component, pageProps }) {
+    return (
+        <PlausibleProvider
+            domain='milkmoney.club'
+            selfHosted={true}
+            customDomain='https://io.fun-club.xyz'
+        >
+            <Component {...pageProps} />
+        </PlausibleProvider>
+    );
 }
-
-export default MyApp;
