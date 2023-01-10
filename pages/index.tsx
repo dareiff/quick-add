@@ -7,16 +7,18 @@ const MoneyAdder = styled.div`
     display: flex;
     flex-direction: row;
     flex-flow: row wrap;
-    margin: 20px 0;
-    justify-content: flex-start;
+    margin: 10px 0 30px 0;
+    justify-content: space-between;
+    gap: 15px;
 
-    > span {
+    > button {
         display: inline-flex;
         margin: 0 5px 0 0;
         cursor: pointer;
-        padding: 5px 10px;
-        border-radius: 4px;
-        background-color: rgba(253, 178, 154, 0.73);
+        padding: 13px 20px;
+        color: #000;
+        background-color: #fff;
+        border: 1px solid #404040;
     }
 `;
 
@@ -24,6 +26,26 @@ const Gear = styled.div`
     font-size: 22px;
     cursor: pointer;
     justify-self: flex-end;
+`;
+
+const CategoryHeaderGroup = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    h3 {
+        margin: 0;
+        display: inline;
+    }
+`;
+
+const DisplayButton = styled.button`
+    padding: 5px 30px;
+    margin: 0;
+    box-shadow: 3px 3px 0 rgba(74, 225, 94, 1);
+    color: #000;
+    background-color: #fff;
+    border: 1px solid #404040;
 `;
 
 const HeaderContainer = styled.div`
@@ -41,6 +63,8 @@ const CategoryHolder = styled.div`
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 20px 0;
 `;
 
 interface CategoryI {
@@ -48,16 +72,15 @@ interface CategoryI {
     dimmed: boolean;
 }
 const CategorySelector = styled.div<CategoryI>`
-    display: inline;
-    padding: 5px 10px;
-    margin: 5px 8px 5px 0;
-    font-size: 14px;
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 5px;
+    font-size: 12px;
     cursor: pointer;
     background-color: ${(props: CategoryI) =>
         props.selected ? 'rgba(74, 225, 94, 1.00)' : 'rgba(255, 205, 1, .20)'};
     border-radius: 8px;
     color: ${(props: CategoryI) => (props.dimmed ? '#909090' : '#202020')};
-    font-weight: ${(props: CategoryI) => (props.selected ? 600 : 400)};
 `;
 
 const InputWrapper = styled.div`
@@ -78,8 +101,7 @@ const TheSingleStepper = styled.div`
 `;
 
 const ValueChange = styled.div`
-    background-color: ${(props) =>
-        props.selected ? 'rgba(253, 178, 154, 0.73)' : '#fff'};
+    background-color: ${(props) => props.selectedColor};
     width: 28px;
     height: 29px;
     color: #404040;
@@ -192,10 +214,16 @@ const Footer = styled.div`
     }
 `;
 
+const FavoriteCategoriesHolder = styled.div`
+    display: block;
+    margin: 10px 0;
+`;
+
 const reducer = (state: any, action: any) => {
     if (
-        state.categories.filter((cat: any) => cat.id === action.value.id)
-            .length > 0
+        state.categories.filter(
+            (cat: LunchMoneyCategory) => cat.id === action.value.id
+        ).length > 0
     ) {
         const filterCats = state.categories.filter(
             (currentFavorite: any) => currentFavorite.id !== action.value.id
@@ -225,7 +253,7 @@ const Home: React.FC = () => {
     const [authenticated, setAuthenticated] = useState<boolean>(false);
     const [amount, setAmount] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(false);
-    const [favs, showFavs] = useState<boolean>(false);
+    const [showFavs, setShowFavs] = useState<boolean>(false);
     const [accessTokenInState, setAccessToken] = useState<string>('');
     const [success, setSuccess] = useState<boolean>(false);
     const [cats, setCats] = useState<Array<LunchMoneyCategory> | null>(null);
@@ -236,6 +264,7 @@ const Home: React.FC = () => {
     const [settings, showSettings] = useState<boolean>(false);
     const [negative, setNegative] = useState<boolean>(false);
 
+    const [noCategoryWarning, setNoCategoryWarning] = useState<boolean>(false);
     const amountRef = createRef<HTMLInputElement>();
     const accessRef = createRef<HTMLInputElement>();
 
@@ -274,6 +303,14 @@ const Home: React.FC = () => {
         } else if (localStorage.getItem('access_token')) {
             setAccessToken(localStorage.getItem('access_token'));
         }
+        // // get favorites if it exists in local storage
+        // if (localStorage.getItem('favorites')) {
+        //     setShowFavs(true);
+        //     dispatch({
+        //         type: 'setFavorites',
+        //         value: JSON.parse(localStorage.getItem('favorites')),
+        //     });
+        // }
     }, []);
 
     useEffect(() => {
@@ -285,6 +322,11 @@ const Home: React.FC = () => {
             setAuthenticated(true);
         }
     }, [accessTokenInState]);
+
+    // Save favorites to local storage when they change
+    useEffect(() => {
+        localStorage.setItem('favorites', JSON.stringify(favCats.categories));
+    }, [favCats]);
 
     useEffect(() => {
         //this is what we do when the accessToken is in state and
@@ -308,6 +350,7 @@ const Home: React.FC = () => {
 
         if (amount === 0 || category === null) {
             setLoading(false);
+            setNoCategoryWarning(true);
             return;
         } else {
             var now = dayjs();
@@ -394,23 +437,24 @@ const Home: React.FC = () => {
                         )}
                     </div>
                 )}
-                {authenticated && (
+                {authenticated && !settings && (
                     <div>
                         {error.length > 0 &&
                             accessTokenInState.length !== 0 && <p>{error}</p>}
-
                         <label htmlFor='lineItem'>Cash Entry:</label>
                         <InputWrapper>
                             <TheSingleStepper>
                                 <ValueChange
                                     onClick={() => setNegative(false)}
-                                    selected={!negative}
+                                    selectedColor={!negative && '#8ff7b8'}
                                 >
                                     +
                                 </ValueChange>
                                 <ValueChange
                                     onClick={() => setNegative(true)}
-                                    selected={negative}
+                                    selectedColor={
+                                        negative && 'rgb(255, 144, 144)'
+                                    }
                                 >
                                     -
                                 </ValueChange>
@@ -427,27 +471,27 @@ const Home: React.FC = () => {
                                 }
                             />
                         </InputWrapper>
+                        <h3>Quick buttons:</h3>
                         <MoneyAdder>
-                            <div
-                                style={{
-                                    alignSelf: 'center',
-                                    margin: '0 5px 0 0',
-                                }}
-                            >
-                                Quick Entry:
-                            </div>
-                            <span onClick={() => setAmount(amount + 1)}>
+                            <button onClick={() => setAmount(0)}>Clear</button>
+                            <button onClick={() => setAmount(amount + 1)}>
                                 $1
-                            </span>
-                            <span onClick={() => setAmount(amount + 2)}>
+                            </button>
+                            <button onClick={() => setAmount(amount + 2)}>
                                 $2
-                            </span>
-                            <span onClick={() => setAmount(amount + 5)}>
+                            </button>
+                            <button onClick={() => setAmount(amount + 5)}>
                                 $5
-                            </span>
-                            <span onClick={() => setAmount(amount + 10)}>
+                            </button>
+                            <button onClick={() => setAmount(amount + 10)}>
                                 $10
-                            </span>
+                            </button>
+                            <button onClick={() => setAmount(amount + 20)}>
+                                $20
+                            </button>
+                            <button onClick={() => setAmount(amount + 100)}>
+                                $100
+                            </button>
                         </MoneyAdder>
                         {success && (
                             <SuccessHolder>
@@ -472,31 +516,39 @@ const Home: React.FC = () => {
                                 </TinyButton>
                             </SuccessHolder>
                         )}
-                        <a
-                            style={{ textAlign: 'left', fontWeight: 'bold' }}
-                            onClick={() => showFavs(!favs)}
-                        >
-                            Toggle all categories
-                        </a>
-                        {favs && <h2>Favorites:</h2>}
-                        {favCats.categories.length > 0 && favs && (
-                            <CategoryHolder>
-                                {favCats.categories.map((cat) => {
-                                    return (
-                                        <CategorySelector
-                                            selected={category.id === cat.id}
-                                            key={cat.id}
-                                            onClick={() =>
-                                                setChosenCategory(cat)
-                                            }
-                                        >
-                                            {cat.name}
-                                        </CategorySelector>
-                                    );
-                                })}
-                            </CategoryHolder>
+                        <CategoryHeaderGroup>
+                            <h3>Categories</h3>
+                            <DisplayButton
+                                onClick={() => setShowFavs(!showFavs)}
+                            >
+                                {showFavs
+                                    ? 'Show All Categories'
+                                    : 'Hide Categories'}
+                            </DisplayButton>
+                        </CategoryHeaderGroup>
+                        {favCats.categories.length > 0 && showFavs && (
+                            <FavoriteCategoriesHolder>
+                                <h3>❤️Favorites:</h3>
+                                <CategoryHolder>
+                                    {favCats.categories.map((cat) => {
+                                        return (
+                                            <CategorySelector
+                                                selected={
+                                                    category.id === cat.id
+                                                }
+                                                key={cat.id}
+                                                onClick={() =>
+                                                    setChosenCategory(cat)
+                                                }
+                                            >
+                                                {cat.name}
+                                            </CategorySelector>
+                                        );
+                                    })}
+                                </CategoryHolder>
+                            </FavoriteCategoriesHolder>
                         )}
-                        {cats !== null && !favs && (
+                        {cats !== null && !showFavs && (
                             <CategoryHolder>
                                 {cats.map((catone, i) => (
                                     <CategorySelector
