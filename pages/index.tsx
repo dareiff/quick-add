@@ -70,6 +70,7 @@ const CategoryHolder = styled.div`
 interface CategoryI {
     selected: boolean;
     dimmed: boolean;
+    value?: number;
 }
 const CategorySelector = styled.div<CategoryI>`
     display: inline-block;
@@ -101,7 +102,6 @@ const TheSingleStepper = styled.div`
 `;
 
 const ValueChange = styled.div`
-    background-color: ${(props) => props.selectedColor};
     width: 28px;
     height: 29px;
     color: #404040;
@@ -222,11 +222,11 @@ const FavoriteCategoriesHolder = styled.div`
 const reducer = (state: any, action: any) => {
     if (
         state.categories.filter(
-            (cat: LunchMoneyCategory) => cat.id === action.value.id
+            (cat: LunchMoneyCategory) => cat.id === action.value.id,
         ).length > 0
     ) {
         const filterCats = state.categories.filter(
-            (currentFavorite: any) => currentFavorite.id !== action.value.id
+            (currentFavorite: any) => currentFavorite.id !== action.value.id,
         );
         return { categories: filterCats };
     } else {
@@ -259,7 +259,7 @@ const Home: React.FC = () => {
     const [cats, setCats] = useState<Array<LunchMoneyCategory> | null>(null);
     const [error, setError] = useState<string>('');
     const [category, setChosenCategory] = useState<LunchMoneyCategory | null>(
-        null
+        null,
     );
     const [settings, showSettings] = useState<boolean>(false);
     const [negative, setNegative] = useState<boolean>(false);
@@ -268,9 +268,7 @@ const Home: React.FC = () => {
     const amountRef = createRef<HTMLInputElement>();
     const accessRef = createRef<HTMLInputElement>();
 
-    const favoriteCategories = { categories: [] };
-
-    const [favCats, dispatch] = useReducer(reducer, favoriteCategories);
+    const [favCat, setFavCat] = useState<number>();
 
     const downloadCats = async (at: string) => {
         console.log('are we doing this?');
@@ -289,7 +287,7 @@ const Home: React.FC = () => {
             })
             .catch(() => {
                 setError(
-                    'Something went wrong downloading categories. You might check your network connection, or your API key'
+                    'Something went wrong downloading categories. You might check your network connection, or your API key',
                 );
                 setCats(null);
             });
@@ -303,18 +301,26 @@ const Home: React.FC = () => {
         } else if (localStorage.getItem('access_token')) {
             setAccessToken(localStorage.getItem('access_token'));
         }
-        // // get favorites if it exists in local storage
-        // if (localStorage.getItem('favorites')) {
-        //     setShowFavs(true);
-        //     dispatch({
-        //         type: 'setFavorites',
-        //         value: JSON.parse(localStorage.getItem('favorites')),
-        //     });
-        // }
+        // get favorites if it exists in local storage
+        if (localStorage.getItem('favorite')) {
+            setShowFavs(true);
+            // make sure this is an array and isn't 0
+            const fav = JSON.parse(localStorage.getItem('favorite') || '');
+            if (fav) {
+                setFavCat(fav);
+            }
+        }
     }, []);
 
     useEffect(() => {
-        //this is what we do AFTER they press the button to add the accesstoken to local state
+        // this is what we do when they press the favorite button
+        if (favCat) {
+            localStorage.setItem('favorite', JSON.stringify(favCat));
+        }
+    }, [favCat]);
+
+    useEffect(() => {
+        // this is what we do AFTER they press the button to add the accesstoken to local state
         if (accessTokenInState.length === 0) {
             return;
         } else if (accessTokenInState.length > 1) {
@@ -322,11 +328,6 @@ const Home: React.FC = () => {
             setAuthenticated(true);
         }
     }, [accessTokenInState]);
-
-    // Save favorites to local storage when they change
-    useEffect(() => {
-        localStorage.setItem('favorites', JSON.stringify(favCats.categories));
-    }, [favCats]);
 
     useEffect(() => {
         //this is what we do when the accessToken is in state and
@@ -446,15 +447,23 @@ const Home: React.FC = () => {
                             <TheSingleStepper>
                                 <ValueChange
                                     onClick={() => setNegative(false)}
-                                    selectedColor={!negative && '#8ff7b8'}
+                                    style={{
+                                        marginRight: '10px',
+                                        backgroundColor: negative
+                                            ? 'white'
+                                            : 'rgb(79, 235, 79)',
+                                    }}
                                 >
                                     +
                                 </ValueChange>
                                 <ValueChange
                                     onClick={() => setNegative(true)}
-                                    selectedColor={
-                                        negative && 'rgb(255, 144, 144)'
-                                    }
+                                    style={{
+                                        marginRight: '10px',
+                                        backgroundColor: negative
+                                            ? 'rgb(255, 144, 144)'
+                                            : 'white',
+                                    }}
                                 >
                                     -
                                 </ValueChange>
@@ -465,7 +474,7 @@ const Home: React.FC = () => {
                                 ref={amountRef}
                                 value={amount.toString()}
                                 onChange={(
-                                    e: React.FormEvent<HTMLInputElement>
+                                    e: React.FormEvent<HTMLInputElement>,
                                 ) =>
                                     setAmount(parseFloat(e.currentTarget.value))
                                 }
@@ -495,17 +504,10 @@ const Home: React.FC = () => {
                         </MoneyAdder>
                         {success && (
                             <SuccessHolder>
-                                <p>
-                                    Want to add that category to favorites?
-                                    (Everything else will be collapsed by
-                                    default afterward, but you can always unfurl
-                                    it.)
-                                </p>
+                                <p>Want to add that category to favorites?</p>
                                 <TinyButton
                                     onClick={() => {
-                                        dispatch({
-                                            value: category,
-                                        });
+                                        setFavCat(category.id);
                                         setSuccess(false);
                                     }}
                                 >
@@ -526,28 +528,6 @@ const Home: React.FC = () => {
                                     : 'Hide Categories'}
                             </DisplayButton>
                         </CategoryHeaderGroup>
-                        {favCats.categories.length > 0 && showFavs && (
-                            <FavoriteCategoriesHolder>
-                                <h3>❤️Favorites:</h3>
-                                <CategoryHolder>
-                                    {favCats.categories.map((cat) => {
-                                        return (
-                                            <CategorySelector
-                                                selected={
-                                                    category.id === cat.id
-                                                }
-                                                key={cat.id}
-                                                onClick={() =>
-                                                    setChosenCategory(cat)
-                                                }
-                                            >
-                                                {cat.name}
-                                            </CategorySelector>
-                                        );
-                                    })}
-                                </CategoryHolder>
-                            </FavoriteCategoriesHolder>
-                        )}
                         {cats !== null && !showFavs && (
                             <CategoryHolder>
                                 {cats.map((catone, i) => (
@@ -567,9 +547,10 @@ const Home: React.FC = () => {
                                             setChosenCategory(catone)
                                         }
                                     >
-                                        {favCats.categories.filter(
-                                            (cat) => cat.id === catone.id
-                                        ).length > 0 && <span>😍</span>}
+                                        {favCat !== null &&
+                                            favCat === catone.id && (
+                                                <span>😍</span>
+                                            )}
                                         {catone.name}
                                     </CategorySelector>
                                 ))}
