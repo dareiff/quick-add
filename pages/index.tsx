@@ -252,6 +252,7 @@ interface LunchMoneyCategory {
 const Home: React.FC = () => {
     const [authenticated, setAuthenticated] = useState<boolean>(false);
     const [amount, setAmount] = useState<number>(0);
+    const [notes, setNotes] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [showFavs, setShowFavs] = useState<boolean>(false);
     const [accessTokenInState, setAccessToken] = useState<string>('');
@@ -266,6 +267,7 @@ const Home: React.FC = () => {
 
     const [noCategoryWarning, setNoCategoryWarning] = useState<boolean>(false);
     const amountRef = createRef<HTMLInputElement>();
+    const notesRef = createRef<HTMLInputElement>();
     const accessRef = createRef<HTMLInputElement>();
 
     const [favCat, setFavCat] = useState<number>();
@@ -369,6 +371,7 @@ const Home: React.FC = () => {
                             category_id: category.id,
                             date: now.format('YYYY-MM-DD').toString(),
                             payee: 'CASH',
+                            notes: notes,
                         },
                     ],
                 }),
@@ -379,6 +382,8 @@ const Home: React.FC = () => {
                     setLoading(false);
                     setAmount(0);
                     setSuccess(true);
+                    // Clear notes after successful submission
+                    setNotes('');
                 })
                 .catch((err) => {
                     console.log(err);
@@ -556,6 +561,17 @@ const Home: React.FC = () => {
                                 ))}
                             </CategoryHolder>
                         )}
+                        <label htmlFor='notes'>Notes:</label>
+                        <InputWrapper>
+                            <NumberInput
+                                id='notes'
+                                ref={notesRef}
+                                value={notes}
+                                onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                                    setNotes(e.currentTarget.value)
+                                }
+                            />
+                        </InputWrapper>
                         <Button onClick={() => insertTransaction()}>
                             Add Transaction
                         </Button>
@@ -586,3 +602,4 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
