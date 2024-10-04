@@ -262,7 +262,7 @@ const Home: React.FC = () => {
         null,
     );
     const [settings, showSettings] = useState<boolean>(false);
-    const [negative, setNegative] = useState<boolean>(false);
+    const [negative, setNegative] = useState<boolean>(true);
 
     const [noCategoryWarning, setNoCategoryWarning] = useState<boolean>(false);
     const amountRef = createRef<HTMLInputElement>();
