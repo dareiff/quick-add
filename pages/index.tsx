@@ -235,7 +235,10 @@ const Home: React.FC = () => {
     const [accessTokenInState, setAccessToken] = useState<string>('');
     const [success, setSuccess] = useState<boolean>(false);
     const [cats, setCats] = useState<Array<LunchMoneyCategory> | null>(null);
-    const [recentCategories, setRecentCategories] = useState<LunchMoneyCategory[]>([]);
+    const [recentCategories, setRecentCategories] = useState<{
+        category: LunchMoneyCategory;
+        count: number
+    }[]>([]);
     const [showRecent, setShowRecent] = useState(true);  // Show/hide state for recent categories
     const [showMore, setShowMore] = useState(false); // Show/hide rest of categories
     const [error, setError] = useState<string>('');
@@ -326,12 +329,29 @@ const Home: React.FC = () => {
         }
     }, [recentCategories]);
 
-
     const updateRecentCategories = (newCategory: LunchMoneyCategory) => {
-        const updatedRecent = [newCategory, ...recentCategories].filter(
-            (cat, index, self) =>
-                index === self.findIndex((c) => c.id === cat.id),
-        ).slice(0, 3); // Limit to 3 and remove duplicates
+        let updatedRecent = [...recentCategories];
+
+        const existingCategoryIndex = updatedRecent.findIndex(
+            (item) => item.category.id === newCategory.id,
+        );
+
+        if (existingCategoryIndex !== -1) {
+            // Category exists, increment count and move to the front (most recent)
+            updatedRecent[existingCategoryIndex].count++;
+            const updatedItem = updatedRecent.splice(existingCategoryIndex, 1)[0]; // Remove and get the item
+            updatedRecent.unshift(updatedItem); // Add to the beginning
+
+        } else {
+            if (updatedRecent.length >= 5) {
+                // Sort by count descending
+                updatedRecent.sort((a, b) => b.count - a.count);
+                updatedRecent.pop(); // Remove the least used/oldest
+            }
+            // New category, add it to the beginning with count 1
+            updatedRecent.unshift({ category: newCategory, count: 1 }); // Add to beginning
+
+        }
         setRecentCategories(updatedRecent);
     };
 
@@ -420,7 +440,7 @@ const Home: React.FC = () => {
                         ) : (
                             <div>
                                 <span>
-                                    {accessTokenInState.substring(0, 20)}...
+                                    {accessTokenInState.substring(0, 10)}...
                                 </span>
                                 <TinyButton
                                     onClick={() => {
@@ -523,23 +543,23 @@ const Home: React.FC = () => {
                                     {recentCategories.map((catone, i) => (
                                         <CategorySelector
                                             key={i}
-                                            value={catone.id}
+                                            value={catone.category.id}
                                             selected={
                                                 category !== null &&
-                                                category.id === catone.id
+                                                category.id === catone.category.id
                                             }
                                             dimmed={
                                                 category !== null &&
-                                                category.id !== catone.id &&
+                                                category.id !== catone.category.id &&
                                                 category !== null
                                             }
                                             onClick={() => {
-                                                setChosenCategory(catone);
-                                                updateRecentCategories(catone);
+                                                setChosenCategory(catone.category);
+                                                updateRecentCategories(catone.category);
                                                 setShowMore(false);
                                             }}
                                         >
-                                            {catone.name}
+                                            {catone.category.name}
                                         </CategorySelector>
                                     ))}
                                 </CategoryHolder>
@@ -547,7 +567,7 @@ const Home: React.FC = () => {
                                     <CategoryHolder>
                                         {cats
                                             .filter(cat => !cat.is_group) // Filter out group categories
-                                            .filter((cat) => !recentCategories.some(recent => recent.id === cat.id)) // Exclude recent categories
+                                            .filter((cat) => !recentCategories.some(recent => recent.category.id === cat.id)) // Exclude recent categories
                                             .map((catone, i) => (
                                                 <CategorySelector
                                                     key={i}
