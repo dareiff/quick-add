@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import React, { createRef, useEffect, useState } from 'react';
+import React, { createRef, useEffect, useState, useRef } from 'react';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
 
@@ -340,6 +340,13 @@ const Home: React.FC = () => {
             );
         }
     }, [recentCategories]);
+
+    useEffect(() => {
+        // Focus on the cash entry input when the component mounts and authenticated
+        if (authenticated && amountRef.current) {
+            amountRef.current.focus();
+        }
+    }, [authenticated]);
 
     const updateRecentCategories = (newCategory: LunchMoneyCategory) => {
         let updatedRecent = [...recentCategories];
