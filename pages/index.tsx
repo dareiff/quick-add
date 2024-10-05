@@ -393,6 +393,13 @@ const Home: React.FC = () => {
         }
     }
 
+    const handleNotesKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Enter') {  // Check if Enter key is pressed
+            e.preventDefault();  // Prevent default form submission behavior (important!)
+            insertTransaction(); // Call your transaction function
+        }
+    };
+
     const insertTransaction = async () => {
         setLoading(true);
 
@@ -425,7 +432,6 @@ const Home: React.FC = () => {
                 .then((res) => {
                     console.log(res);
                     if (category) { // Check if category is selected
-                        console.log('Updating recent categories:', category);
                         updateRecentCategories(category);
                     }
                     setLoading(false);
@@ -668,6 +674,7 @@ const Home: React.FC = () => {
                                 onChange={(e: React.FormEvent<HTMLInputElement>) =>
                                     setNotes(e.currentTarget.value)
                                 }
+                                onKeyDown={handleNotesKeyDown}
                             />
                         <Button onClick={() => insertTransaction()}>
                             Add Transaction
