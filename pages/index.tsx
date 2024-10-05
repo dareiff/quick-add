@@ -352,7 +352,7 @@ const Home: React.FC = () => {
     useEffect(() => {
         // Focus on the cash entry input when the component mounts and authenticated
         if (authenticated && amountRef.current) {
-            setTimeout(() => amountRef.current.focus(), 500)
+            amountRef.current.focus()
         }
     }, [authenticated]);
 
