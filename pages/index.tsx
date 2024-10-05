@@ -234,6 +234,7 @@ const Home: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [accessTokenInState, setAccessToken] = useState<string>('');
     const [success, setSuccess] = useState<boolean>(false);
+    const [showQuickButtons, setShowQuickButtons] = useState(false);
     const [cats, setCats] = useState<Array<LunchMoneyCategory> | null>(null);
     const [recentCategories, setRecentCategories] = useState<{
         category: LunchMoneyCategory;
@@ -284,6 +285,16 @@ const Home: React.FC = () => {
         } else if (localStorage.getItem('access_token')) {
             setAccessToken(localStorage.getItem('access_token'));
         }
+
+        const storedShowQuickButtons = localStorage.getItem('showQuickButtons');
+        if (storedShowQuickButtons) {
+            setShowQuickButtons(JSON.parse(storedShowQuickButtons));
+        }
+
+        const storedRecent = localStorage.getItem('recentCategories');
+        if (storedRecent) {
+            setRecentCategories(JSON.parse(storedRecent));
+        }
     }, []);
 
     useEffect(() => {
@@ -314,11 +325,12 @@ const Home: React.FC = () => {
     };
 
     useEffect(() => {
-        const storedRecent = localStorage.getItem('recentCategories');
-        if (storedRecent) {
-            setRecentCategories(JSON.parse(storedRecent));
-        }
-    }, []);
+        localStorage.setItem(
+            'showQuickButtons',
+            JSON.stringify(showQuickButtons),
+        );
+
+    }, [showQuickButtons]);
 
     useEffect(() => {
         if (recentCategories.length > 0) {
@@ -451,7 +463,20 @@ const Home: React.FC = () => {
                                 >
                                     Delete
                                 </TinyButton>
-                                <p></p><TinyButton
+                            </div>
+                        )}
+                        <div>  {/* New toggle for quick buttons */}
+                            <label htmlFor="showQuickButtons">Show Quick Buttons:</label>
+                            <input
+                                type="checkbox"
+                                id="showQuickButtons"
+                                checked={showQuickButtons}
+                                onChange={(e) => setShowQuickButtons(e.target.checked)}
+                            />
+                        </div>
+                        {recentCategories.length !== 0 && (
+                            <div>
+                                <TinyButton
                                     onClick={() => {
                                         localStorage.removeItem('recentCategories');
                                         setRecentCategories([]);
@@ -507,28 +532,32 @@ const Home: React.FC = () => {
                                 inputMode="numeric" // Add inputMode="numeric" (for older browsers)
                             />
                         </InputWrapper>
-                        <h3>Quick buttons:</h3>
-                        <MoneyAdder>
-                            <button onClick={() => setAmount(0)}>Clear</button>
-                            <button onClick={() => setAmount(amount + 1)}>
-                                $1
-                            </button>
-                            <button onClick={() => setAmount(amount + 2)}>
-                                $2
-                            </button>
-                            <button onClick={() => setAmount(amount + 5)}>
-                                $5
-                            </button>
-                            <button onClick={() => setAmount(amount + 10)}>
-                                $10
-                            </button>
-                            <button onClick={() => setAmount(amount + 20)}>
-                                $20
-                            </button>
-                            <button onClick={() => setAmount(amount + 100)}>
-                                $100
-                            </button>
-                        </MoneyAdder>
+                        {showQuickButtons && ( // Conditionally render Quick Buttons
+                            <>
+                            <h3>Quick buttons:</h3>
+                            <MoneyAdder>
+                                <button onClick={() => setAmount(0)}>Clear</button>
+                                <button onClick={() => setAmount(amount + 1)}>
+                                    $1
+                                </button>
+                                <button onClick={() => setAmount(amount + 2)}>
+                                    $2
+                                </button>
+                                <button onClick={() => setAmount(amount + 5)}>
+                                    $5
+                                </button>
+                                <button onClick={() => setAmount(amount + 10)}>
+                                    $10
+                                </button>
+                                <button onClick={() => setAmount(amount + 20)}>
+                                    $20
+                                </button>
+                                <button onClick={() => setAmount(amount + 100)}>
+                                    $100
+                                </button>
+                            </MoneyAdder>
+                            </>
+                        )}
                         <CategoryHeaderGroup>
                             <h3>Category</h3>
                             {recentCategories.length !== 0 && (
