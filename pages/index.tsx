@@ -449,9 +449,10 @@ const Home: React.FC = () => {
                     setLoading(false);
                     setAmount(0);
                     setSuccess(true);
-                    // Clear notes after successful submission
                     setNotes('');
                     setChosenCategory(null);
+                    setSelectedCategory(null);
+                    setCategory(null);
                 })
                 .catch((err) => {
                     console.log(err);
@@ -652,7 +653,7 @@ const Home: React.FC = () => {
                                     onChange={handleCategoryChange}
                                     options={categoryOptions}
                                     isSearchable
-                                    placeholder={recentCategories.length === 0 ? 'Select category...' : 'More categories...'}
+                                    placeholder={recentCategories.length === 0 ? 'Select a category...' : 'More categories...'}
                                     styles={{
                                         control: (provided) => ({
                                             ...provided,
