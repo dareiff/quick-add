@@ -462,6 +462,14 @@ const Home: React.FC = () => {
                                 >
                                     Delete
                                 </TinyButton>
+                                <p></p><TinyButton
+                                    onClick={() => {
+                                        localStorage.removeItem('recentCategories');
+                                        setRecentCategories([]);
+                                    }}
+                                >
+                                    Clear recent categories
+                                </TinyButton>
                             </div>
                         )}
                     </div>
@@ -531,7 +539,7 @@ const Home: React.FC = () => {
                             </button>
                         </MoneyAdder>
                         <CategoryHeaderGroup>
-                            <h3>Recent Categories</h3>
+                            <h3>Category</h3>
                         </CategoryHeaderGroup>
                         {cats !== null && (
                             <>
@@ -558,12 +566,14 @@ const Home: React.FC = () => {
                                         </CategorySelector>
                                     ))}
                                 </CategoryHolder>
-                                <p>
-                                    <DisplayButton onClick={() => setShowMore(!showMore)}>
-                                        {showMore ? 'Show Less' : 'Show More'}
-                                    </DisplayButton>
-                                </p>
-                                {showMore && (
+                                {recentCategories.length !== 0 && (
+                                    <p>
+                                        <DisplayButton onClick={() => setShowMore(!showMore)}>
+                                            {showMore ? 'Show Less' : 'Show More'}
+                                        </DisplayButton>
+                                    </p>
+                                )}
+                                {(showMore || recentCategories.length === 0) && (
                                     <CategoryHolder>
                                         {cats
                                             .filter((cat) => !recentCategories.some(recent => recent.id === cat.id)) // Exclude recent categories
