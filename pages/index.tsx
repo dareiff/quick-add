@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import React, { createRef, useEffect, useReducer, useState } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
 
@@ -214,28 +214,6 @@ const Footer = styled.div`
     }
 `;
 
-const FavoriteCategoriesHolder = styled.div`
-    display: block;
-    margin: 10px 0;
-`;
-
-const reducer = (state: any, action: any) => {
-    if (
-        state.categories.filter(
-            (cat: LunchMoneyCategory) => cat.id === action.value.id,
-        ).length > 0
-    ) {
-        const filterCats = state.categories.filter(
-            (currentFavorite: any) => currentFavorite.id !== action.value.id,
-        );
-        return { categories: filterCats };
-    } else {
-        return {
-            categories: [action.value, ...state.categories],
-        };
-    }
-};
-
 interface LunchMoneyCategory {
     id: number;
     name: string;
@@ -272,8 +250,6 @@ const Home: React.FC = () => {
     const notesRef = createRef<HTMLInputElement>();
     const accessRef = createRef<HTMLInputElement>();
 
-    const [favCat, setFavCat] = useState<number>();
-
     const downloadCats = async (at: string) => {
         console.log('are we doing this?');
 
@@ -306,13 +282,6 @@ const Home: React.FC = () => {
             setAccessToken(localStorage.getItem('access_token'));
         }
     }, []);
-
-    useEffect(() => {
-        // this is what we do when they press the favorite button
-        if (favCat) {
-            localStorage.setItem('favorite', JSON.stringify(favCat));
-        }
-    }, [favCat]);
 
     useEffect(() => {
         // this is what we do AFTER they press the button to add the accesstoken to local state
