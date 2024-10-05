@@ -585,8 +585,11 @@ const Home: React.FC = () => {
                                 {(showMore || recentCategories.length === 0) && (
                                     <CategoryHolder>
                                         {cats
-                                            .filter(cat => !cat.is_group) // Filter out group categories
-                                            .filter(cat => !cat.archived) // Filter out archived categories
+                                            // Filter out categories likely to not be useful.
+                                            .filter(cat => !cat.is_group)
+                                            .filter(cat => !cat.archived)
+                                            .filter(cat => !cat.exclude_from_budget)
+                                            .filter(cat => !cat.exclude_from_totals)
                                             .filter((cat) => !recentCategories.some(recent => recent.category.id === cat.id)) // Exclude recent categories
                                             .map((catone, i) => (
                                                 <CategorySelector
