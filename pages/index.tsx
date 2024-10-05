@@ -254,10 +254,12 @@ const Home: React.FC = () => {
     const [amount, setAmount] = useState<number>(0);
     const [notes, setNotes] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
-    const [showFavs, setShowFavs] = useState<boolean>(false);
     const [accessTokenInState, setAccessToken] = useState<string>('');
     const [success, setSuccess] = useState<boolean>(false);
     const [cats, setCats] = useState<Array<LunchMoneyCategory> | null>(null);
+    const [recentCategories, setRecentCategories] = useState<LunchMoneyCategory[]>([]);
+    const [showRecent, setShowRecent] = useState(true);  // Show/hide state for recent categories
+    const [showMore, setShowMore] = useState(false); // Show/hide rest of categories
     const [error, setError] = useState<string>('');
     const [category, setChosenCategory] = useState<LunchMoneyCategory | null>(
         null,
@@ -296,21 +298,12 @@ const Home: React.FC = () => {
     };
 
     useEffect(() => {
-        //try to get localstorage
+        // try to get localstorage
         if (localStorage.getItem('access_token') === null) {
             console.log('We need to ask for their accessToken');
             return;
         } else if (localStorage.getItem('access_token')) {
             setAccessToken(localStorage.getItem('access_token'));
-        }
-        // get favorites if it exists in local storage
-        if (localStorage.getItem('favorite')) {
-            setShowFavs(true);
-            // make sure this is an array and isn't 0
-            const fav = JSON.parse(localStorage.getItem('favorite') || '');
-            if (fav) {
-                setFavCat(fav);
-            }
         }
     }, []);
 
@@ -348,6 +341,31 @@ const Home: React.FC = () => {
         }
     };
 
+    useEffect(() => {
+        const storedRecent = localStorage.getItem('recentCategories');
+        if (storedRecent) {
+            setRecentCategories(JSON.parse(storedRecent));
+        }
+    }, []);
+
+    useEffect(() => {
+        if (recentCategories.length > 0) {
+            localStorage.setItem(
+                'recentCategories',
+                JSON.stringify(recentCategories),
+            );
+        }
+    }, [recentCategories]);
+
+
+    const updateRecentCategories = (newCategory: LunchMoneyCategory) => {
+        const updatedRecent = [newCategory, ...recentCategories].filter(
+            (cat, index, self) =>
+                index === self.findIndex((c) => c.id === cat.id),
+        ).slice(0, 3); // Limit to 3 and remove duplicates
+        setRecentCategories(updatedRecent);
+    };
+
     const insertTransaction = async () => {
         setLoading(true);
 
@@ -379,11 +397,16 @@ const Home: React.FC = () => {
                 .then((result) => result.json())
                 .then((res) => {
                     console.log(res);
+                    if (category) { // Check if category is selected
+                        console.log('Updating recent categories:', category);
+                        updateRecentCategories(category);
+                    }
                     setLoading(false);
                     setAmount(0);
                     setSuccess(true);
                     // Clear notes after successful submission
                     setNotes('');
+                    setChosenCategory(null);
                 })
                 .catch((err) => {
                     console.log(err);
@@ -507,59 +530,67 @@ const Home: React.FC = () => {
                                 $100
                             </button>
                         </MoneyAdder>
-                        {success && (
-                            <SuccessHolder>
-                                <p>Want to add that category to favorites?</p>
-                                <TinyButton
-                                    onClick={() => {
-                                        setFavCat(category.id);
-                                        setSuccess(false);
-                                    }}
-                                >
-                                    Yep!
-                                </TinyButton>
-                                <TinyButton onClick={() => setSuccess(false)}>
-                                    Nope!!
-                                </TinyButton>
-                            </SuccessHolder>
-                        )}
                         <CategoryHeaderGroup>
-                            <h3>Categories</h3>
-                            <DisplayButton
-                                onClick={() => setShowFavs(!showFavs)}
-                            >
-                                {showFavs
-                                    ? 'Show All Categories'
-                                    : 'Hide Categories'}
-                            </DisplayButton>
+                            <h3>Recent Categories</h3>
                         </CategoryHeaderGroup>
-                        {cats !== null && !showFavs && (
-                            <CategoryHolder>
-                                {cats.map((catone, i) => (
-                                    <CategorySelector
-                                        key={i}
-                                        value={catone.id}
-                                        selected={
-                                            category !== null &&
-                                            category.id === catone.id
-                                        }
-                                        dimmed={
-                                            category !== null &&
-                                            category.id !== catone.id &&
-                                            category !== null
-                                        }
-                                        onClick={() =>
-                                            setChosenCategory(catone)
-                                        }
-                                    >
-                                        {favCat !== null &&
-                                            favCat === catone.id && (
-                                                <span>😍</span>
-                                            )}
-                                        {catone.name}
-                                    </CategorySelector>
-                                ))}
-                            </CategoryHolder>
+                        {cats !== null && (
+                            <>
+                                <CategoryHolder>
+                                    {recentCategories.map((catone, i) => (
+                                        <CategorySelector
+                                            key={i}
+                                            value={catone.id}
+                                            selected={
+                                                category !== null &&
+                                                category.id === catone.id
+                                            }
+                                            dimmed={
+                                                category !== null &&
+                                                category.id !== catone.id &&
+                                                category !== null
+                                            }
+                                            onClick={() => {
+                                                setChosenCategory(catone);
+                                                updateRecentCategories(catone); // Update recent categories on click
+                                            }}
+                                        >
+                                            {catone.name}
+                                        </CategorySelector>
+                                    ))}
+                                </CategoryHolder>
+                                <p>
+                                    <DisplayButton onClick={() => setShowMore(!showMore)}>
+                                        {showMore ? 'Show Less' : 'Show More'}
+                                    </DisplayButton>
+                                </p>
+                                {showMore && (
+                                    <CategoryHolder>
+                                        {cats
+                                            .filter((cat) => !recentCategories.some(recent => recent.id === cat.id)) // Exclude recent categories
+                                            .map((catone, i) => (
+                                                <CategorySelector
+                                                    key={i}
+                                                    value={catone.id}
+                                                    selected={
+                                                        category !== null &&
+                                                        category.id === catone.id
+                                                    }
+                                                    dimmed={
+                                                        category !== null &&
+                                                        category.id !== catone.id &&
+                                                        category !== null
+                                                    }
+                                                    onClick={() => {
+                                                        setChosenCategory(catone);
+                                                        updateRecentCategories(catone); // Update recent categories on click
+                                                    }}
+                                                >
+                                                    {catone.name}
+                                                </CategorySelector>
+                                            ))}
+                                    </CategoryHolder>
+                                )}
+                            </>
                         )}
                         <label htmlFor='notes'>Notes:</label>
                         <InputWrapper>
@@ -575,6 +606,14 @@ const Home: React.FC = () => {
                         <Button onClick={() => insertTransaction()}>
                             Add Transaction
                         </Button>
+                        {success && (
+                            <SuccessHolder>
+                                <p>Succesfully added transaction!</p>
+                                <TinyButton onClick={() => setSuccess(false)}>
+                                    Clear
+                                </TinyButton>
+                            </SuccessHolder>
+                        )}
                     </div>
                 )}
             </MainContainer>
