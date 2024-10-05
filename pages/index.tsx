@@ -240,6 +240,7 @@ const Home: React.FC = () => {
         category: LunchMoneyCategory;
         count: number
     }[]>([]);
+    const [recentCount, setRecentCount] = useState<number>(3); // State for configurable recent count
     const [showRecent, setShowRecent] = useState(true);  // Show/hide state for recent categories
     const [showMore, setShowMore] = useState(false); // Show/hide rest of categories
     const [error, setError] = useState<string>('');
@@ -253,6 +254,7 @@ const Home: React.FC = () => {
     const amountRef = createRef<HTMLInputElement>();
     const notesRef = createRef<HTMLInputElement>();
     const accessRef = createRef<HTMLInputElement>();
+    const recentCountRef = createRef<HTMLInputElement>();
 
     const downloadCats = async (at: string) => {
         console.log('are we doing this?');
@@ -294,6 +296,11 @@ const Home: React.FC = () => {
         const storedRecent = localStorage.getItem('recentCategories');
         if (storedRecent) {
             setRecentCategories(JSON.parse(storedRecent));
+        }
+
+        const storedRecentCount = localStorage.getItem('recentCount');
+        if (storedRecentCount) {
+            setRecentCount(parseInt(storedRecentCount, 10));
         }
     }, []);
 
@@ -339,7 +346,8 @@ const Home: React.FC = () => {
                 JSON.stringify(recentCategories),
             );
         }
-    }, [recentCategories]);
+        localStorage.setItem('recentCount', recentCount.toString());
+    }, [recentCategories, recentCount]);
 
     useEffect(() => {
         // Focus on the cash entry input when the component mounts and authenticated
@@ -362,7 +370,7 @@ const Home: React.FC = () => {
             updatedRecent.unshift(updatedItem); // Add to the beginning
 
         } else {
-            if (updatedRecent.length >= 5) {
+            if (updatedRecent.length >= recentCount) {
                 // Sort by count descending
                 updatedRecent.sort((a, b) => b.count - a.count);
                 updatedRecent.pop(); // Remove the least used/oldest
@@ -373,6 +381,17 @@ const Home: React.FC = () => {
         }
         setRecentCategories(updatedRecent);
     };
+
+    const handleRecentCountChange = () => {
+        if (recentCountRef.current) {
+            const newCount = parseInt(recentCountRef.current.value, 10);
+            if (!isNaN(newCount) && newCount > 0) { // Validate input
+                setRecentCount(newCount);
+                // Re-apply limit to recentCategories based on new count:
+                setRecentCategories(prevRecent => prevRecent.slice(0, newCount));
+            }
+        }
+    }
 
     const insertTransaction = async () => {
         setLoading(true);
@@ -493,6 +512,17 @@ const Home: React.FC = () => {
                                 </TinyButton>
                             </div>
                         )}
+                        <div>
+                            <p></p><label htmlFor="recentCount">Recent Categories:</label>
+                            <TinyField
+                                id="recentCount"
+                                type="number"
+                                ref={recentCountRef}
+                                value={recentCount}
+                                onChange={handleRecentCountChange} // Call on change
+                                min="1"  // Prevent negative or zero values
+                            />
+                        </div>
                     </div>
                 )}
                 {authenticated && !settings && (
@@ -631,8 +661,7 @@ const Home: React.FC = () => {
                             </>
                         )}
                         <label htmlFor='notes'>Notes:</label>
-                        <InputWrapper>
-                            <NumberInput
+                            <TinyField
                                 id='notes'
                                 ref={notesRef}
                                 value={notes}
@@ -640,7 +669,6 @@ const Home: React.FC = () => {
                                     setNotes(e.currentTarget.value)
                                 }
                             />
-                        </InputWrapper>
                         <Button onClick={() => insertTransaction()}>
                             Add Transaction
                         </Button>
