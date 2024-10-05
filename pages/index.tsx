@@ -55,7 +55,8 @@ const HeaderContainer = styled.div`
     justify-content: space-between;
 
     h1 {
-        margin: 10px 20px;
+        margin: 0px 20px;
+        font-size: 30px;
     }
 `;
 
@@ -74,9 +75,9 @@ interface CategoryI {
 }
 const CategorySelector = styled.div<CategoryI>`
     display: inline-block;
-    padding: 8px 12px;
+    padding: 12px 12px;
     margin: 5px;
-    font-size: 12px;
+    font-size: 15px;
     cursor: pointer;
     background-color: ${(props: CategoryI) =>
         props.selected ? 'rgba(74, 225, 94, 1.00)' : 'rgba(255, 205, 1, .20)'};
@@ -548,14 +549,6 @@ const Home: React.FC = () => {
                         {error.length > 0 &&
                             accessTokenInState.length !== 0 && <p>{error}</p>}
 
-                        <CategoryHeaderGroup>
-                            <h3>Category</h3>
-                            {recentCategories.length !== 0 && (
-                                <DisplayButton onClick={() => setShowMore(!showMore)}>
-                                    {showMore ? 'Hide Categories' : 'Show All Categories'}
-                                </DisplayButton>
-                            )}
-                        </CategoryHeaderGroup>
                         {cats !== null && (
                             <>
                                 <CategoryHolder>
@@ -581,6 +574,15 @@ const Home: React.FC = () => {
                                             {catone.category.name}
                                         </CategorySelector>
                                     ))}
+
+                                <CategoryHeaderGroup>
+                                    {recentCategories.length !== 0 && (
+                                        <DisplayButton onClick={() => setShowMore(!showMore)}>
+                                            {showMore ? 'Hide' : 'Show All'}
+                                        </DisplayButton>
+                                    )}
+                                </CategoryHeaderGroup>
+
                                 </CategoryHolder>
                                 {(showMore || recentCategories.length === 0) && (
                                     <CategoryHolder>
@@ -618,7 +620,6 @@ const Home: React.FC = () => {
                             </>
                         )}
 
-                        <label htmlFor='lineItem'>Cash Entry:</label>
                         <InputWrapper>
                             <TheSingleStepper>
                                 <ValueChange
