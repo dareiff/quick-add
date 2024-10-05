@@ -353,6 +353,7 @@ const Home: React.FC = () => {
         // Focus on the cash entry input when the component mounts and authenticated
         if (authenticated && amountRef.current) {
             amountRef.current.focus();
+            amountRef.current.click();
         }
     }, [authenticated]);
 
