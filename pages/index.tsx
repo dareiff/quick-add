@@ -347,6 +347,7 @@ const Home: React.FC = () => {
             setAccessToken(accessRef.current.value);
             setAuthenticated(true);
             localStorage.setItem('access_token', accessRef.current.value);
+            showSettings(false);
         }
     };
 
@@ -484,7 +485,7 @@ const Home: React.FC = () => {
                                 <p>This app lets you quickly add manual transactions to LunchMoney on the go.</p>
                                 <p>To get started, add your access token (only stored locally on your device.)</p>
                                 <TinyField
-                                    placeholder='accesstoken'
+                                    placeholder='LunchMoney Access Token'
                                     type='text'
                                     ref={accessRef}
                                 />
