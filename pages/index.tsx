@@ -243,10 +243,8 @@ const Home: React.FC = () => {
     const [recentCount, setRecentCount] = useState<number>(3); // State for configurable recent count
     const [showRecent, setShowRecent] = useState(true);  // Show/hide state for recent categories
     const [showMore, setShowMore] = useState(false); // Show/hide rest of categories
+    const [category, setCategory] = useState<LunchMoneyCategory | null>(null);
     const [error, setError] = useState<string>('');
-    const [category, setChosenCategory] = useState<LunchMoneyCategory | null>(
-        null,
-    );
     const [settings, showSettings] = useState<boolean>(false);
     const [negative, setNegative] = useState<boolean>(true);
 
@@ -255,6 +253,15 @@ const Home: React.FC = () => {
     const notesRef = createRef<HTMLInputElement>();
     const accessRef = createRef<HTMLInputElement>();
     const recentCountRef = createRef<HTMLInputElement>();
+
+    const setChosenCategory = (newCategory: LunchMoneyCategory) => {
+        setCategory(newCategory);
+
+        // Set focus to the amount input after setting the category.
+        if (amountRef.current) {
+            amountRef.current.focus();
+        }
+    };
 
     const downloadCats = async (at: string) => {
         console.log('are we doing this?');
@@ -348,13 +355,6 @@ const Home: React.FC = () => {
         }
         localStorage.setItem('recentCount', recentCount.toString());
     }, [recentCategories, recentCount]);
-
-    useEffect(() => {
-        // Focus on the cash entry input when the component mounts and authenticated
-        if (authenticated && amountRef.current) {
-            amountRef.current.focus()
-        }
-    }, [authenticated]);
 
     const updateRecentCategories = (newCategory: LunchMoneyCategory) => {
         let updatedRecent = [...recentCategories];
