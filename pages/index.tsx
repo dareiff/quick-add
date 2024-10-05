@@ -478,7 +478,10 @@ const Home: React.FC = () => {
                                 type="checkbox"
                                 id="showQuickButtons"
                                 checked={showQuickButtons}
-                                onChange={(e) => setShowQuickButtons(e.target.checked)}
+                                onChange={(e) => {
+                                    setShowQuickButtons(e.target.checked);
+                                    showSettings(false);
+                                }}
                             />
                         </div>
                         {recentCategories.length !== 0 && (
@@ -487,6 +490,7 @@ const Home: React.FC = () => {
                                     onClick={() => {
                                         localStorage.removeItem('recentCategories');
                                         setRecentCategories([]);
+                                        showSettings(false);
                                     }}
                                 >
                                     Clear recent categories
