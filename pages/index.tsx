@@ -514,6 +514,8 @@ const Home: React.FC = () => {
                                 ) =>
                                     setAmount(parseFloat(e.currentTarget.value))
                                 }
+                                type="number" //  Add the type="number" attribute
+                                inputMode="numeric" // Add inputMode="numeric" (for older browsers)
                             />
                         </InputWrapper>
                         <h3>Quick buttons:</h3>
