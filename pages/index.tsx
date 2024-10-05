@@ -511,6 +511,11 @@ const Home: React.FC = () => {
                         </MoneyAdder>
                         <CategoryHeaderGroup>
                             <h3>Category</h3>
+                            {recentCategories.length !== 0 && (
+                                <DisplayButton onClick={() => setShowMore(!showMore)}>
+                                    {showMore ? 'Hide Categories' : 'Show All Categories'}
+                                </DisplayButton>
+                            )}
                         </CategoryHeaderGroup>
                         {cats !== null && (
                             <>
@@ -530,20 +535,14 @@ const Home: React.FC = () => {
                                             }
                                             onClick={() => {
                                                 setChosenCategory(catone);
-                                                updateRecentCategories(catone); // Update recent categories on click
+                                                updateRecentCategories(catone);
+                                                setShowMore(false);
                                             }}
                                         >
                                             {catone.name}
                                         </CategorySelector>
                                     ))}
                                 </CategoryHolder>
-                                {recentCategories.length !== 0 && (
-                                    <p>
-                                        <DisplayButton onClick={() => setShowMore(!showMore)}>
-                                            {showMore ? 'Show Less' : 'Show More'}
-                                        </DisplayButton>
-                                    </p>
-                                )}
                                 {(showMore || recentCategories.length === 0) && (
                                     <CategoryHolder>
                                         {cats
@@ -564,7 +563,8 @@ const Home: React.FC = () => {
                                                     }
                                                     onClick={() => {
                                                         setChosenCategory(catone);
-                                                        updateRecentCategories(catone); // Update recent categories on click
+                                                        updateRecentCategories(catone);
+                                                        setShowMore(false);
                                                     }}
                                                 >
                                                     {catone.name}
