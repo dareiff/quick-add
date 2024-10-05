@@ -393,6 +393,17 @@ const Home: React.FC = () => {
         }
     }
 
+    const handleAmountKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission
+
+            // Focus on the notes input
+            if (notesRef.current) {
+                notesRef.current.focus();
+            }
+        }
+    };
+
     const handleNotesKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter') {  // Check if Enter key is pressed
             e.preventDefault();  // Prevent default form submission behavior (important!)
@@ -535,72 +546,7 @@ const Home: React.FC = () => {
                     <div>
                         {error.length > 0 &&
                             accessTokenInState.length !== 0 && <p>{error}</p>}
-                        <label htmlFor='lineItem'>Cash Entry:</label>
-                        <InputWrapper>
-                            <TheSingleStepper>
-                                <ValueChange
-                                    onClick={() => setNegative(false)}
-                                    style={{
-                                        marginRight: '10px',
-                                        backgroundColor: negative
-                                            ? 'white'
-                                            : 'rgb(79, 235, 79)',
-                                    }}
-                                >
-                                    +
-                                </ValueChange>
-                                <ValueChange
-                                    onClick={() => setNegative(true)}
-                                    style={{
-                                        marginRight: '10px',
-                                        backgroundColor: negative
-                                            ? 'rgb(255, 144, 144)'
-                                            : 'white',
-                                    }}
-                                >
-                                    -
-                                </ValueChange>
-                            </TheSingleStepper>
-                            <DollarSign>$</DollarSign>
-                            <NumberInput
-                                id='lineItem'
-                                ref={amountRef}
-                                value={amount.toString()}
-                                onChange={(
-                                    e: React.FormEvent<HTMLInputElement>,
-                                ) =>
-                                    setAmount(parseFloat(e.currentTarget.value))
-                                }
-                                type="number" //  Add the type="number" attribute
-                                inputMode="numeric" // Add inputMode="numeric" (for older browsers)
-                            />
-                        </InputWrapper>
-                        {showQuickButtons && ( // Conditionally render Quick Buttons
-                            <>
-                            <h3>Quick buttons:</h3>
-                            <MoneyAdder>
-                                <button onClick={() => setAmount(0)}>Clear</button>
-                                <button onClick={() => setAmount(amount + 1)}>
-                                    $1
-                                </button>
-                                <button onClick={() => setAmount(amount + 2)}>
-                                    $2
-                                </button>
-                                <button onClick={() => setAmount(amount + 5)}>
-                                    $5
-                                </button>
-                                <button onClick={() => setAmount(amount + 10)}>
-                                    $10
-                                </button>
-                                <button onClick={() => setAmount(amount + 20)}>
-                                    $20
-                                </button>
-                                <button onClick={() => setAmount(amount + 100)}>
-                                    $100
-                                </button>
-                            </MoneyAdder>
-                            </>
-                        )}
+
                         <CategoryHeaderGroup>
                             <h3>Category</h3>
                             {recentCategories.length !== 0 && (
@@ -666,7 +612,76 @@ const Home: React.FC = () => {
                                 )}
                             </>
                         )}
-                        <label htmlFor='notes'>Notes:</label>
+
+                        <label htmlFor='lineItem'>Cash Entry:</label>
+                        <InputWrapper>
+                            <TheSingleStepper>
+                                <ValueChange
+                                    onClick={() => setNegative(false)}
+                                    style={{
+                                        marginRight: '10px',
+                                        backgroundColor: negative
+                                            ? 'white'
+                                            : 'rgb(79, 235, 79)',
+                                    }}
+                                >
+                                    +
+                                </ValueChange>
+                                <ValueChange
+                                    onClick={() => setNegative(true)}
+                                    style={{
+                                        marginRight: '10px',
+                                        backgroundColor: negative
+                                            ? 'rgb(255, 144, 144)'
+                                            : 'white',
+                                    }}
+                                >
+                                    -
+                                </ValueChange>
+                            </TheSingleStepper>
+                            <DollarSign>$</DollarSign>
+                            <NumberInput
+                                id='lineItem'
+                                ref={amountRef}
+                                value={amount.toString()}
+                                onChange={(
+                                    e: React.FormEvent<HTMLInputElement>,
+                                ) =>
+                                    setAmount(parseFloat(e.currentTarget.value))
+                                }
+                                onKeyDown={handleAmountKeyDown}
+                                type="number" //  Add the type="number" attribute
+                                inputMode="numeric" // Add inputMode="numeric" (for older browsers)
+                            />
+                        </InputWrapper>
+                        {showQuickButtons && ( // Conditionally render Quick Buttons
+                            <>
+                            <h3>Quick buttons:</h3>
+                            <MoneyAdder>
+                                <button onClick={() => setAmount(0)}>Clear</button>
+                                <button onClick={() => setAmount(amount + 1)}>
+                                    $1
+                                </button>
+                                <button onClick={() => setAmount(amount + 2)}>
+                                    $2
+                                </button>
+                                <button onClick={() => setAmount(amount + 5)}>
+                                    $5
+                                </button>
+                                <button onClick={() => setAmount(amount + 10)}>
+                                    $10
+                                </button>
+                                <button onClick={() => setAmount(amount + 20)}>
+                                    $20
+                                </button>
+                                <button onClick={() => setAmount(amount + 100)}>
+                                    $100
+                                </button>
+                            </MoneyAdder>
+                            </>
+                        )}
+
+                        <p></p><label htmlFor='notes'>Notes:</label>
                             <TinyField
                                 id='notes'
                                 ref={notesRef}
