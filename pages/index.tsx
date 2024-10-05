@@ -250,10 +250,15 @@ const Home: React.FC = () => {
 
     const [selectedCategory, setSelectedCategory] = useState<any>(null); // For selected option
 
-    const categoryOptions = cats?.map((cat) => ({
-        value: cat,
-        label: cat.name,
-    })) || [] ;  // Transform categories into options for react-select
+    const categoryOptions = cats?.filter(cat => !cat.is_group)
+                                 .filter(cat => !cat.archived)
+                                 .filter(cat => !cat.exclude_from_budget)
+                                 .filter(cat => !cat.exclude_from_totals)
+                                 // Transform categories into options for react-select
+                                 .map((cat) => ({
+                                     value: cat,
+                                     label: cat.name,
+                                 })) || [];
 
     const handleCategoryChange = (selectedOption: any) => {
         setSelectedCategory(selectedOption);
@@ -482,10 +487,12 @@ const Home: React.FC = () => {
 
                 {(!authenticated || settings) && (
                     <div style={{ width: '100%', margin: '20px 0' }}>
-                        <h2>Settings:</h2>
-                        <p>Use your own access token to get started.</p>
+
                         {accessTokenInState.length === 0 ? (
                             <div>
+                                <h3>Welcome!</h3>
+                                <p>This app lets you quickly add manual transactions to LunchMoney on the go.</p>
+                                <p>To get started, add your access token (only stored locally on your device.)</p>
                                 <TinyField
                                     placeholder='accesstoken'
                                     type='text'
@@ -501,138 +508,64 @@ const Home: React.FC = () => {
                             </div>
                         ) : (
                             <div>
-                                <span>
-                                    {accessTokenInState.substring(0, 10)}...
-                                </span>
-                                <TinyButton
-                                    onClick={() => {
-                                        localStorage.removeItem('access_token');
-                                        setAccessToken('');
-                                        setAuthenticated(false);
-                                    }}
-                                >
-                                    Delete
-                                </TinyButton>
-                            </div>
-                        )}
-                        <div>  {/* New toggle for quick buttons */}
-                            <p></p><TinyButton onClick={() => {
-                                setShowQuickButtons(!showQuickButtons);
-                                showSettings(false);
-                            }}>
-                                {showQuickButtons ? 'Hide Quick Buttons' : 'Show Quick Buttons'}
-                            </TinyButton>
-                        </div>
-                        {recentCategories.length !== 0 && (
-                            <div>
-                                <p></p><TinyButton
-                                    onClick={() => {
-                                        localStorage.removeItem('recentCategories');
-                                        setRecentCategories([]);
+                                <h3>Settings:</h3>
+                                <div>
+                                    <span>
+                                        {accessTokenInState.substring(0, 10)}...
+                                    </span>
+                                    <TinyButton
+                                        onClick={() => {
+                                            localStorage.removeItem('access_token');
+                                            setAccessToken('');
+                                            setAuthenticated(false);
+                                        }}
+                                    >
+                                        Delete Access Token
+                                    </TinyButton>
+                                </div>
+                                <div>  {/* New toggle for quick buttons */}
+                                    <p></p><TinyButton onClick={() => {
+                                        setShowQuickButtons(!showQuickButtons);
                                         showSettings(false);
-                                    }}
-                                >
-                                    Clear recent categories
-                                </TinyButton>
+                                    }}>
+                                        {showQuickButtons ? 'Hide Quick Buttons' : 'Show Quick Buttons'}
+                                    </TinyButton>
+                                </div>
+                                {recentCategories.length !== 0 && (
+                                    <div>
+                                        <p></p><TinyButton
+                                            onClick={() => {
+                                                localStorage.removeItem('recentCategories');
+                                                setRecentCategories([]);
+                                                showSettings(false);
+                                            }}
+                                        >
+                                            Clear recent categories
+                                        </TinyButton>
+                                    </div>
+                                )}
+                                <div>
+                                    <p></p><label htmlFor="recentCount">Recent Categories:</label>
+                                    <TinyField
+                                        id="recentCount"
+                                        type="number"
+                                        ref={recentCountRef}
+                                        value={recentCount}
+                                        onChange={handleRecentCountChange} // Call on change
+                                        min="1"  // Prevent negative or zero values
+                                    />
+                                </div>
                             </div>
                         )}
-                        <div>
-                            <p></p><label htmlFor="recentCount">Recent Categories:</label>
-                            <TinyField
-                                id="recentCount"
-                                type="number"
-                                ref={recentCountRef}
-                                value={recentCount}
-                                onChange={handleRecentCountChange} // Call on change
-                                min="1"  // Prevent negative or zero values
-                            />
-                        </div>
                     </div>
                 )}
+
                 {authenticated && !settings && (
                     <div>
                         {error.length > 0 &&
                             accessTokenInState.length !== 0 && <p>{error}</p>}
 
-                        {cats !== null && (
-                            <>
-
-                                <Select
-                                    value={selectedCategory}
-                                    onChange={handleCategoryChange}
-                                    options={categoryOptions}
-                                    isSearchable
-                                    placeholder="Select a category"
-                                    styles={{ // Basic styling (customize as needed)
-                                        control: (provided) => ({
-                                            ...provided,
-                                            border: '1px solid #404040',
-                                            borderRadius: '5px',
-                                            padding: '5px',
-                                        }),
-                                    }}
-                                />
-
-                                <CategoryHolder>
-                                    {recentCategories.map((catone, i) => (
-                                        <CategorySelector
-                                            key={i}
-                                            value={catone.category.id}
-                                            selected={
-                                                category !== null &&
-                                                category.id === catone.category.id
-                                            }
-                                            dimmed={
-                                                category !== null &&
-                                                category.id !== catone.category.id &&
-                                                category !== null
-                                            }
-                                            onClick={() => {
-                                                setChosenCategory(catone.category);
-                                                updateRecentCategories(catone.category);
-                                            }}
-                                        >
-                                            {catone.category.name}
-                                        </CategorySelector>
-                                    ))}
-
-                                </CategoryHolder>
-                                {recentCategories.length === 0 && (
-                                    <CategoryHolder>
-                                        {cats
-                                            // Filter out categories likely to not be useful.
-                                            .filter(cat => !cat.is_group)
-                                            .filter(cat => !cat.archived)
-                                            .filter(cat => !cat.exclude_from_budget)
-                                            .filter(cat => !cat.exclude_from_totals)
-                                            .filter((cat) => !recentCategories.some(recent => recent.category.id === cat.id)) // Exclude recent categories
-                                            .map((catone, i) => (
-                                                <CategorySelector
-                                                    key={i}
-                                                    value={catone.id}
-                                                    selected={
-                                                        category !== null &&
-                                                        category.id === catone.id
-                                                    }
-                                                    dimmed={
-                                                        category !== null &&
-                                                        category.id !== catone.id &&
-                                                        category !== null
-                                                    }
-                                                    onClick={() => {
-                                                        setChosenCategory(catone);
-                                                        updateRecentCategories(catone);
-                                                    }}
-                                                >
-                                                    {catone.name}
-                                                </CategorySelector>
-                                            ))}
-                                    </CategoryHolder>
-                                )}
-                            </>
-                        )}
-
-                        <InputWrapper>
+<InputWrapper>
                             <TheSingleStepper>
                                 <ValueChange
                                     onClick={() => setNegative(false)}
@@ -672,6 +605,7 @@ const Home: React.FC = () => {
                                 inputMode="numeric" // Add inputMode="numeric" (for older browsers)
                             />
                         </InputWrapper>
+
                         {showQuickButtons && ( // Conditionally render Quick Buttons
                             <>
                             <h3>Quick buttons:</h3>
@@ -696,6 +630,50 @@ const Home: React.FC = () => {
                                     $100
                                 </button>
                             </MoneyAdder>
+                            </>
+                        )}
+
+                        {cats !== null && (
+                            <>
+                                <CategoryHolder>
+                                    {recentCategories.map((catone, i) => (
+                                        <CategorySelector
+                                            key={i}
+                                            value={catone.category.id}
+                                            selected={
+                                                category !== null &&
+                                                category.id === catone.category.id
+                                            }
+                                            dimmed={
+                                                category !== null &&
+                                                category.id !== catone.category.id &&
+                                                category !== null
+                                            }
+                                            onClick={() => {
+                                                setChosenCategory(catone.category);
+                                                updateRecentCategories(catone.category);
+                                            }}
+                                        >
+                                            {catone.category.name}
+                                        </CategorySelector>
+                                    ))}
+                                </CategoryHolder>
+
+                                <Select
+                                    value={selectedCategory}
+                                    onChange={handleCategoryChange}
+                                    options={categoryOptions}
+                                    isSearchable
+                                    placeholder={recentCategories.length === 0 ? 'Select category...' : 'More categories...'}
+                                    styles={{
+                                        control: (provided) => ({
+                                            ...provided,
+                                            border: '1px solid #404040',
+                                            borderRadius: '5px',
+                                            padding: '5px',
+                                        }),
+                                    }}
+                                />
                             </>
                         )}
 
