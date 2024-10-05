@@ -269,9 +269,9 @@ const Home: React.FC = () => {
     const setChosenCategory = (newCategory: LunchMoneyCategory) => {
         setCategory(newCategory);
 
-        // Set focus to the amount input after setting the category.
-        if (amountRef.current) {
-            amountRef.current.focus();
+        // Set focus to the notes input after setting the category.
+        if (notesRef.current) {
+            notesRef.current.focus();
         }
     };
 
@@ -404,17 +404,6 @@ const Home: React.FC = () => {
             }
         }
     }
-
-    const handleAmountKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            e.preventDefault(); // Prevent form submission
-
-            // Focus on the notes input
-            if (notesRef.current) {
-                notesRef.current.focus();
-            }
-        }
-    };
 
     const handleNotesKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {  // Check if Enter key is pressed
@@ -600,7 +589,6 @@ const Home: React.FC = () => {
                                 ) =>
                                     setAmount(parseFloat(e.currentTarget.value))
                                 }
-                                onKeyDown={handleAmountKeyDown}
                                 type="number" //  Add the type="number" attribute
                                 inputMode="numeric" // Add inputMode="numeric" (for older browsers)
                             />
