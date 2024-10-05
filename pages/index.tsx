@@ -2,6 +2,7 @@ import Head from 'next/head';
 import React, { createRef, useEffect, useState, useRef } from 'react';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
+import Select from 'react-select';
 
 const MoneyAdder = styled.div`
     display: flex;
@@ -255,6 +256,19 @@ const Home: React.FC = () => {
     const notesRef = createRef<HTMLInputElement>();
     const accessRef = createRef<HTMLInputElement>();
     const recentCountRef = createRef<HTMLInputElement>();
+
+    const [selectedCategory, setSelectedCategory] = useState<any>(null); // For selected option
+
+    const categoryOptions = cats?.map((cat) => ({
+        value: cat,
+        label: cat.name,
+    })) || [] ;  // Transform categories into options for react-select
+
+    const handleCategoryChange = (selectedOption: any) => {
+        setSelectedCategory(selectedOption);
+        setChosenCategory(selectedOption.value);
+        updateRecentCategories(selectedOption.value);
+    };
 
     const setChosenCategory = (newCategory: LunchMoneyCategory) => {
         setCategory(newCategory);
@@ -551,6 +565,23 @@ const Home: React.FC = () => {
 
                         {cats !== null && (
                             <>
+
+                                <Select
+                                    value={selectedCategory}
+                                    onChange={handleCategoryChange}
+                                    options={categoryOptions}
+                                    isSearchable
+                                    placeholder="Select a category"
+                                    styles={{ // Basic styling (customize as needed)
+                                        control: (provided) => ({
+                                            ...provided,
+                                            border: '1px solid #404040',
+                                            borderRadius: '5px',
+                                            padding: '5px',
+                                        }),
+                                    }}
+                                />
+
                                 <CategoryHolder>
                                     {recentCategories.map((catone, i) => (
                                         <CategorySelector
