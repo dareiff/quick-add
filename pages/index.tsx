@@ -406,7 +406,7 @@ const Home: React.FC = () => {
         }
     };
 
-    const handleNotesKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const handleNotesKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {  // Check if Enter key is pressed
             e.preventDefault();  // Prevent default form submission behavior (important!)
             insertTransaction(); // Call your transaction function
@@ -696,6 +696,7 @@ const Home: React.FC = () => {
                                     setNotes(e.currentTarget.value)
                                 }
                                 onKeyDown={handleNotesKeyDown}
+                                type="text"
                             />
                         <Button onClick={() => insertTransaction()}>
                             Add Transaction
