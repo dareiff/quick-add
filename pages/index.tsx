@@ -40,15 +40,6 @@ const CategoryHeaderGroup = styled.div`
     }
 `;
 
-const DisplayButton = styled.button`
-    padding: 5px 30px;
-    margin: 0;
-    box-shadow: 3px 3px 0 rgba(74, 225, 94, 1);
-    color: #000;
-    background-color: #fff;
-    border: 1px solid #404040;
-`;
-
 const HeaderContainer = styled.div`
     display: flex;
     flex-direction: row;
@@ -95,6 +86,7 @@ const InputWrapper = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
+    height: 100px;
 `;
 
 const TheSingleStepper = styled.div`
@@ -105,7 +97,7 @@ const TheSingleStepper = styled.div`
 
 const ValueChange = styled.div`
     width: 110px;
-    height: 29px;
+    height: 30px;
     color: #404040;
     text-align: center;
     border-radius: 8px;
@@ -245,7 +237,6 @@ const Home: React.FC = () => {
     }[]>([]);
     const [recentCount, setRecentCount] = useState<number>(3); // State for configurable recent count
     const [showRecent, setShowRecent] = useState(true);  // Show/hide state for recent categories
-    const [showMore, setShowMore] = useState(false); // Show/hide rest of categories
     const [category, setCategory] = useState<LunchMoneyCategory | null>(null);
     const [error, setError] = useState<string>('');
     const [settings, showSettings] = useState<boolean>(false);
@@ -599,23 +590,14 @@ const Home: React.FC = () => {
                                             onClick={() => {
                                                 setChosenCategory(catone.category);
                                                 updateRecentCategories(catone.category);
-                                                setShowMore(false);
                                             }}
                                         >
                                             {catone.category.name}
                                         </CategorySelector>
                                     ))}
 
-                                <CategoryHeaderGroup>
-                                    {recentCategories.length !== 0 && (
-                                        <DisplayButton onClick={() => setShowMore(!showMore)}>
-                                            {showMore ? 'Hide' : 'Show All'}
-                                        </DisplayButton>
-                                    )}
-                                </CategoryHeaderGroup>
-
                                 </CategoryHolder>
-                                {(showMore || recentCategories.length === 0) && (
+                                {recentCategories.length === 0 && (
                                     <CategoryHolder>
                                         {cats
                                             // Filter out categories likely to not be useful.
@@ -640,7 +622,6 @@ const Home: React.FC = () => {
                                                     onClick={() => {
                                                         setChosenCategory(catone);
                                                         updateRecentCategories(catone);
-                                                        setShowMore(false);
                                                     }}
                                                 >
                                                     {catone.name}
@@ -656,7 +637,7 @@ const Home: React.FC = () => {
                                 <ValueChange
                                     onClick={() => setNegative(false)}
                                     style={{
-                                        marginRight: '10px',
+                                        marginRight: '20px',
                                         backgroundColor: negative
                                             ? 'white'
                                             : 'rgb(79, 235, 79)',
@@ -667,7 +648,7 @@ const Home: React.FC = () => {
                                 <ValueChange
                                     onClick={() => setNegative(true)}
                                     style={{
-                                        marginRight: '10px',
+                                        marginRight: '20px',
                                         backgroundColor: negative
                                             ? 'rgb(255, 144, 144)'
                                             : 'white',
