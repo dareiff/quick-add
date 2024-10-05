@@ -97,13 +97,13 @@ const InputWrapper = styled.div`
 `;
 
 const TheSingleStepper = styled.div`
-    width: 40px;
+    width: 200px;
     display: flex;
     flex-direction: column;
 `;
 
 const ValueChange = styled.div`
-    width: 28px;
+    width: 110px;
     height: 29px;
     color: #404040;
     text-align: center;
@@ -181,7 +181,7 @@ const TinyButton = styled.button`
 `;
 
 const NumberInput = styled.input`
-    font-size: 20px;
+    font-size: 35px;
     border: none;
     width: 90%;
     margin: 0 0 0 10px;
@@ -631,7 +631,7 @@ const Home: React.FC = () => {
                                             : 'rgb(79, 235, 79)',
                                     }}
                                 >
-                                    +
+                                    Income
                                 </ValueChange>
                                 <ValueChange
                                     onClick={() => setNegative(true)}
@@ -642,7 +642,7 @@ const Home: React.FC = () => {
                                             : 'white',
                                     }}
                                 >
-                                    -
+                                    Expense
                                 </ValueChange>
                             </TheSingleStepper>
                             <DollarSign>$</DollarSign>
