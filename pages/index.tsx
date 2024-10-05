@@ -225,6 +225,7 @@ interface LunchMoneyCategory {
     created_at: string;
     is_group: boolean;
     group_id: null | number;
+    archived: boolean;
 }
 
 const Home: React.FC = () => {
@@ -585,6 +586,7 @@ const Home: React.FC = () => {
                                     <CategoryHolder>
                                         {cats
                                             .filter(cat => !cat.is_group) // Filter out group categories
+                                            .filter(cat => !cat.archived) // Filter out archived categories
                                             .filter((cat) => !recentCategories.some(recent => recent.category.id === cat.id)) // Exclude recent categories
                                             .map((catone, i) => (
                                                 <CategorySelector
