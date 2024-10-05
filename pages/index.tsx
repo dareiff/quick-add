@@ -473,20 +473,16 @@ const Home: React.FC = () => {
                             </div>
                         )}
                         <div>  {/* New toggle for quick buttons */}
-                            <label htmlFor="showQuickButtons">Show Quick Buttons:</label>
-                            <input
-                                type="checkbox"
-                                id="showQuickButtons"
-                                checked={showQuickButtons}
-                                onChange={(e) => {
-                                    setShowQuickButtons(e.target.checked);
-                                    showSettings(false);
-                                }}
-                            />
+                            <p></p><TinyButton onClick={() => {
+                                setShowQuickButtons(!showQuickButtons);
+                                showSettings(false);
+                            }}>
+                                {showQuickButtons ? 'Hide Quick Buttons' : 'Show Quick Buttons'}
+                            </TinyButton>
                         </div>
                         {recentCategories.length !== 0 && (
                             <div>
-                                <TinyButton
+                                <p></p><TinyButton
                                     onClick={() => {
                                         localStorage.removeItem('recentCategories');
                                         setRecentCategories([]);
