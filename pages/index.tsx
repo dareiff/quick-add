@@ -576,6 +576,7 @@ const Home: React.FC = () => {
                                 {(showMore || recentCategories.length === 0) && (
                                     <CategoryHolder>
                                         {cats
+                                            .filter(cat => !cat.is_group) // Filter out group categories
                                             .filter((cat) => !recentCategories.some(recent => recent.id === cat.id)) // Exclude recent categories
                                             .map((catone, i) => (
                                                 <CategorySelector
