@@ -72,9 +72,9 @@ const CategorySelector = styled.div<CategoryI>`
     font-size: 17px;
     cursor: pointer;
     background-color: ${(props: CategoryI) =>
-        props.selected ? 'rgba(74, 225, 94, 1.00)' : 'rgba(255, 205, 1, .20)'};
+        props.selected ? '#008ae6' : '#e6e6e6'};
     border-radius: 8px;
-    color: ${(props: CategoryI) => (props.dimmed ? '#909090' : '#202020')};
+    color: ${(props: CategoryI) => (props.dimmed ? 'black' : 'white')};
 `;
 
 const InputWrapper = styled.div`
@@ -97,10 +97,13 @@ const TheSingleStepper = styled.div`
 
 const ValueChange = styled.div`
     width: 110px;
-    height: 30px;
+    height: 25px;
     color: #404040;
     text-align: center;
     border-radius: 8px;
+    font-size: 17px;
+    padding: 3px 3px;
+    align-items: center;
     cursor: pointer;
 `;
 
@@ -133,45 +136,37 @@ const MainContainer = styled.div`
 
 const Button = styled.button`
     width: 100%;
-    background-color: #404040;
+    background-color: #006bb3;
     color: #fff;
     padding: 10px 30px;
     margin: 20px auto;
-    box-shadow: 3px 3px 0 rgba(74, 225, 94, 1);
     border: none;
     border-radius: 10px;
     font-size: 20px;
-    text-transform: uppercase;
     font-weight: 700;
-    font-style: italic;
 `;
 
 const TinyField = styled.input`
-    box-shadow: 3px 3px 0 rgba(74, 225, 94, 1);
-    border: 4px solid #404040;
     padding: 12px 12px;
     margin: auto;
     display: inline;
     color: #404040;
     font-size: 20px;
     background-color: #fff;
-    border-radius: 10px;
+    border-radius: 5px;
+    border: 1px solid #404040;
     width: 100%;
 `;
 
 const TinyButton = styled.button`
-    background-color: #404040;
+    width: 100%;
+    background-color: #006bb3;
     color: #fff;
-    padding: 5px 10px;
-    margin: auto 10px;
-    box-shadow: 3px 3px 0 rgba(74, 225, 94, 1);
-    border: 3px solid #404040;
+    padding: 10px 30px;
+    border: none;
     border-radius: 10px;
-    display: inline-block;
-    font-size: 16px;
-    text-transform: uppercase;
+    font-size: 15px;
     font-weight: 700;
-    font-style: italic;
 `;
 
 const NumberInput = styled.input`
@@ -586,7 +581,7 @@ const Home: React.FC = () => {
                     <div>
                         {error.length > 0 &&
                             accessTokenInState.length !== 0 && <p>{error}</p>}
-
+                        <p></p>
                         <InputWrapper>
                             <DollarSign>$</DollarSign>
                             <NumberInput
@@ -609,9 +604,10 @@ const Home: React.FC = () => {
                                     onClick={() => setNegative(false)}
                                     style={{
                                         marginRight: '20px',
+                                        color: !negative ? 'white' : 'black',
                                         backgroundColor: negative
                                             ? 'white'
-                                            : 'rgb(79, 235, 79)',
+                                            : '#008ae6',
                                     }}
                                 >
                                     Income
@@ -620,8 +616,9 @@ const Home: React.FC = () => {
                                     onClick={() => setNegative(true)}
                                     style={{
                                         marginRight: '20px',
+                                        color: negative ? 'white' : 'black',
                                         backgroundColor: negative
-                                            ? 'rgb(79, 235, 79)'
+                                            ? '#008ae6'
                                             : 'white',
                                     }}
                                 >
@@ -669,9 +666,8 @@ const Home: React.FC = () => {
                                                 category.id === catone.category.id
                                             }
                                             dimmed={
-                                                category !== null &&
-                                                category.id !== catone.category.id &&
-                                                category !== null
+                                                category === null || (category !== null &&
+                                                category.id !== catone.category.id)
                                             }
                                             onClick={() => {
                                                 setChosenCategory(catone.category);
@@ -704,7 +700,7 @@ const Home: React.FC = () => {
                         <p></p>
                             <TinyField
                                 id='notes'
-                                placeholder='(Optional) add transaction notes'
+                                placeholder='(Optional) Add note'
                                 ref={notesRef}
                                 value={notes}
                                 onChange={(e: React.FormEvent<HTMLInputElement>) =>
@@ -721,14 +717,14 @@ const Home: React.FC = () => {
                                 <p>Successfully added 🥳!</p>
                             </SuccessHolder>
                         )}
-                        {noCategoryWarning && (
-                            <WarningHolder>
-                                Please select a category.
-                            </WarningHolder>
-                        )}
                         {noAmountWarning && (
                             <WarningHolder>
                                 Please enter an amount.
+                            </WarningHolder>
+                        )}
+                        {noCategoryWarning && (
+                            <WarningHolder>
+                                Please select a category.
                             </WarningHolder>
                         )}
                     </div>
