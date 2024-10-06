@@ -47,7 +47,7 @@ const HeaderContainer = styled.div`
     justify-content: space-between;
 
     h1 {
-        margin: 0px 20px;
+        margin: 5px 20px;
         font-size: 30px;
     }
 `;
