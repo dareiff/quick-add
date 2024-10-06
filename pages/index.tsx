@@ -72,7 +72,7 @@ const CategorySelector = styled.div<CategoryI>`
     font-size: 17px;
     cursor: pointer;
     background-color: ${(props: CategoryI) =>
-        props.selected ? '#008ae6' : '#e6e6e6'};
+        props.selected ? '#006bb3' : '#e6e6e6'};
     border-radius: 8px;
     color: ${(props: CategoryI) => (props.dimmed ? 'black' : 'white')};
 `;
@@ -392,12 +392,9 @@ const Home: React.FC = () => {
         );
 
         if (existingCategoryIndex !== -1) {
-            // Category exists, increment count and move to the front (most recent)
+            // Category exists, increment count but don't move.
             updatedRecent[existingCategoryIndex].count++;
-            const updatedItem = updatedRecent.splice(existingCategoryIndex, 1)[0]; // Remove and get the item
-            updatedRecent.unshift(updatedItem); // Add to the beginning
-
-        } else {
+       } else {
             if (updatedRecent.length >= recentCount) {
                 // Sort by count descending
                 updatedRecent.sort((a, b) => b.count - a.count);
@@ -607,7 +604,7 @@ const Home: React.FC = () => {
                                         color: !negative ? 'white' : 'black',
                                         backgroundColor: negative
                                             ? 'white'
-                                            : '#008ae6',
+                                            : '#006bb3',
                                     }}
                                 >
                                     Income
@@ -618,7 +615,7 @@ const Home: React.FC = () => {
                                         marginRight: '20px',
                                         color: negative ? 'white' : 'black',
                                         backgroundColor: negative
-                                            ? '#008ae6'
+                                            ? '#006bb3'
                                             : 'white',
                                     }}
                                 >
