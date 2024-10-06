@@ -164,12 +164,12 @@ const TinyButton = styled.button`
     padding: 10px 30px;
     border: none;
     border-radius: 10px;
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 700;
 `;
 
 const NumberInput = styled.input`
-    font-size: 35px;
+    font-size: 40px;
     border: none;
     width: 50%;
     margin: 0 0 0 10px;
@@ -553,7 +553,7 @@ const Home: React.FC = () => {
                                                 showSettings(false);
                                             }}
                                         >
-                                            Clear recent categories
+                                            Clear Recent Categories
                                         </TinyButton>
                                     </div>
                                 )}
