@@ -191,8 +191,15 @@ const DollarSign = styled.span`
 `;
 
 const SuccessHolder = styled.div`
+    width: 100%;
     display: flex;
-    flex-direction: row;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+
+    p {
+        font-size: 20px;
+    }
 `;
 
 const Footer = styled.div`
@@ -416,6 +423,7 @@ const Home: React.FC = () => {
 
     const insertTransaction = async () => {
         setLoading(true);
+        let timeoutId: ReturnType<typeof setTimeout>;
 
         if (amount === 0 || category === null) {
             setLoading(false);
@@ -455,11 +463,18 @@ const Home: React.FC = () => {
                     setChosenCategory(null);
                     setSelectedCategory(null);
                     setCategory(null);
+
+                    timeoutId = setTimeout(() => {
+                        setSuccess(false);
+                    }, 3000);
+
+                    return timeoutId; //return the timeout ID
                 })
                 .catch((err) => {
                     console.log(err);
                     setLoading(false);
                     setError('error when inserting transaction');
+                    clearTimeout(timeoutId)
                 });
         }
     };
@@ -682,10 +697,7 @@ const Home: React.FC = () => {
                         </Button>
                         {success && (
                             <SuccessHolder>
-                                <p>Succesfully added transaction!</p>
-                                <TinyButton onClick={() => setSuccess(false)}>
-                                    Clear
-                                </TinyButton>
+                                <p>Succesfully added transaction 🥳!</p>
                             </SuccessHolder>
                         )}
                     </div>
