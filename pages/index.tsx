@@ -156,6 +156,7 @@ const TinyField = styled.input`
     font-weight: 600;
     background-color: #fff;
     border-radius: 10px;
+    width: 95%;
 `;
 
 const TinyButton = styled.button`
@@ -501,9 +502,6 @@ const Home: React.FC = () => {
                             <div>
                                 <h3>Settings:</h3>
                                 <div>
-                                    <span>
-                                        {accessTokenInState.substring(0, 10)}...
-                                    </span>
                                     <TinyButton
                                         onClick={() => {
                                             localStorage.removeItem('access_token');
@@ -511,7 +509,7 @@ const Home: React.FC = () => {
                                             setAuthenticated(false);
                                         }}
                                     >
-                                        Delete Access Token
+                                        Delete Access Token (...{accessTokenInState.slice(-6)})
                                     </TinyButton>
                                 </div>
                                 <div>  {/* New toggle for quick buttons */}
@@ -536,13 +534,13 @@ const Home: React.FC = () => {
                                     </div>
                                 )}
                                 <div>
-                                    <p></p><label htmlFor="recentCount">Recent Categories:</label>
+                                    <p></p><label htmlFor="recentCount">Number of recent categories to show:</label>
                                     <TinyField
                                         id="recentCount"
                                         type="number"
                                         ref={recentCountRef}
                                         value={recentCount}
-                                        onChange={handleRecentCountChange} // Call on change
+                                        onChange={handleRecentCountChange}
                                         min="1"  // Prevent negative or zero values
                                     />
                                 </div>
@@ -667,9 +665,10 @@ const Home: React.FC = () => {
                             </>
                         )}
 
-                        <p></p><label htmlFor='notes'>Notes:</label>
+                        <p></p>
                             <TinyField
                                 id='notes'
+                                placeholder='(Optional) add transaction notes'
                                 ref={notesRef}
                                 value={notes}
                                 onChange={(e: React.FormEvent<HTMLInputElement>) =>
