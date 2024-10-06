@@ -149,14 +149,14 @@ const Button = styled.button`
 const TinyField = styled.input`
     box-shadow: 3px 3px 0 rgba(74, 225, 94, 1);
     border: 4px solid #404040;
-    padding: 5px 10px;
-    margin: auto 10px;
+    padding: 12px 12px;
+    margin: auto;
     display: inline;
     color: #404040;
     font-weight: 600;
     background-color: #fff;
     border-radius: 10px;
-    width: 95%;
+    width: 100%;
 `;
 
 const TinyButton = styled.button`
