@@ -69,7 +69,7 @@ const CategorySelector = styled.div<CategoryI>`
     display: inline-block;
     padding: 12px 12px;
     margin: 5px;
-    font-size: 15px;
+    font-size: 17px;
     cursor: pointer;
     background-color: ${(props: CategoryI) =>
         props.selected ? 'rgba(74, 225, 94, 1.00)' : 'rgba(255, 205, 1, .20)'};
@@ -153,7 +153,7 @@ const TinyField = styled.input`
     margin: auto;
     display: inline;
     color: #404040;
-    font-weight: 600;
+    font-size: 20px;
     background-color: #fff;
     border-radius: 10px;
     width: 100%;
