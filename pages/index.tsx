@@ -152,7 +152,6 @@ const TinyField = styled.input`
     display: inline;
     color: #404040;
     font-size: 20px;
-    background-color: #fff;
     border-radius: 5px;
     border: 1px solid #404040;
     width: 100%;
@@ -685,9 +684,14 @@ const Home: React.FC = () => {
                                     styles={{
                                         control: (provided) => ({
                                             ...provided,
-                                            border: '1px solid #404040',
+                                            padding: '6px 6px',
+                                            margin: 'auto',
+                                            color: '#404040',
+                                            fontSize: '20px',
+                                            backgroundColor: '#fff',
                                             borderRadius: '5px',
-                                            padding: '5px',
+                                            border: '1px solid #404040',
+                                            width: '100%',
                                         }),
                                     }}
                                 />
