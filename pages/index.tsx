@@ -621,7 +621,7 @@ const Home: React.FC = () => {
                                     style={{
                                         marginRight: '20px',
                                         backgroundColor: negative
-                                            ? 'rgb(255, 144, 144)'
+                                            ? 'rgb(79, 235, 79)'
                                             : 'white',
                                     }}
                                 >
