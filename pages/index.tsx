@@ -175,9 +175,9 @@ const TinyButton = styled.button`
 `;
 
 const NumberInput = styled.input`
-    font-size: 35px;
+    font-size: 24px;
     border: none;
-    width: 90%;
+    width: 50%;
     margin: 0 0 0 10px;
     display: inline-block;
 
@@ -188,6 +188,7 @@ const NumberInput = styled.input`
 
 const DollarSign = styled.span`
     font-size: 22px;
+    margin: 0 0 0 30px;
 `;
 
 const SuccessHolder = styled.div`
@@ -198,8 +199,18 @@ const SuccessHolder = styled.div`
     align-items: center;
 
     p {
-        font-size: 20px;
+        font-size: 17px;
     }
+`;
+
+const WarningHolder = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    font-size: 17px;
+    color: red;
 `;
 
 const Footer = styled.div`
@@ -243,20 +254,21 @@ const Home: React.FC = () => {
         category: LunchMoneyCategory;
         count: number
     }[]>([]);
-    const [recentCount, setRecentCount] = useState<number>(3); // State for configurable recent count
-    const [showRecent, setShowRecent] = useState(true);  // Show/hide state for recent categories
+    const [recentCount, setRecentCount] = useState<number>(6);
+    const [showRecent, setShowRecent] = useState(true);
     const [category, setCategory] = useState<LunchMoneyCategory | null>(null);
     const [error, setError] = useState<string>('');
     const [settings, showSettings] = useState<boolean>(false);
     const [negative, setNegative] = useState<boolean>(true);
 
     const [noCategoryWarning, setNoCategoryWarning] = useState<boolean>(false);
+    const [noAmountWarning, setNoAmountWarning] = useState<boolean>(false);
     const amountRef = createRef<HTMLInputElement>();
     const notesRef = createRef<HTMLInputElement>();
     const accessRef = createRef<HTMLInputElement>();
     const recentCountRef = createRef<HTMLInputElement>();
 
-    const [selectedCategory, setSelectedCategory] = useState<any>(null); // For selected option
+    const [selectedCategory, setSelectedCategory] = useState<any>(null);
 
     const categoryOptions = cats?.filter(cat => !cat.is_group)
                                  .filter(cat => !cat.archived)
@@ -401,6 +413,7 @@ const Home: React.FC = () => {
 
         }
         setRecentCategories(updatedRecent);
+        setNoCategoryWarning(false);
     };
 
     const handleRecentCountChange = () => {
@@ -425,9 +438,15 @@ const Home: React.FC = () => {
         setLoading(true);
         let timeoutId: ReturnType<typeof setTimeout>;
 
+        if (category === null) {
+            setNoCategoryWarning(true);
+        }
+        if (amount === 0) {
+            setNoAmountWarning(true);
+        }
+
         if (amount === 0 || category === null) {
             setLoading(false);
-            setNoCategoryWarning(true);
             return;
         } else {
             var now = dayjs();
@@ -463,7 +482,6 @@ const Home: React.FC = () => {
                     setChosenCategory(null);
                     setSelectedCategory(null);
                     setCategory(null);
-
                     timeoutId = setTimeout(() => {
                         setSuccess(false);
                     }, 3000);
@@ -569,7 +587,23 @@ const Home: React.FC = () => {
                         {error.length > 0 &&
                             accessTokenInState.length !== 0 && <p>{error}</p>}
 
-<InputWrapper>
+                        <InputWrapper>
+                            <DollarSign>$</DollarSign>
+                            <NumberInput
+                                id='lineItem'
+                                ref={amountRef}
+                                value={amount.toString()}
+                                onChange={(
+                                    e: React.FormEvent<HTMLInputElement>,
+                                ) =>
+                                    {
+                                        setAmount(parseFloat(e.currentTarget.value))
+                                        setNoAmountWarning(false);
+                                    }
+                                }
+                                type="number" //  Add the type="number" attribute
+                                inputMode="numeric" // Add inputMode="numeric" (for older browsers)
+                            />
                             <TheSingleStepper>
                                 <ValueChange
                                     onClick={() => setNegative(false)}
@@ -594,19 +628,6 @@ const Home: React.FC = () => {
                                     Expense
                                 </ValueChange>
                             </TheSingleStepper>
-                            <DollarSign>$</DollarSign>
-                            <NumberInput
-                                id='lineItem'
-                                ref={amountRef}
-                                value={amount.toString()}
-                                onChange={(
-                                    e: React.FormEvent<HTMLInputElement>,
-                                ) =>
-                                    setAmount(parseFloat(e.currentTarget.value))
-                                }
-                                type="number" //  Add the type="number" attribute
-                                inputMode="numeric" // Add inputMode="numeric" (for older browsers)
-                            />
                         </InputWrapper>
 
                         {showQuickButtons && ( // Conditionally render Quick Buttons
@@ -666,7 +687,7 @@ const Home: React.FC = () => {
                                     value={selectedCategory}
                                     onChange={handleCategoryChange}
                                     options={categoryOptions}
-                                    isSearchable
+                                    isSearchable={false}
                                     placeholder={recentCategories.length === 0 ? 'Select a category...' : 'More categories...'}
                                     styles={{
                                         control: (provided) => ({
@@ -697,8 +718,18 @@ const Home: React.FC = () => {
                         </Button>
                         {success && (
                             <SuccessHolder>
-                                <p>Succesfully added transaction 🥳!</p>
+                                <p>Successfully added 🥳!</p>
                             </SuccessHolder>
+                        )}
+                        {noCategoryWarning && (
+                            <WarningHolder>
+                                Please select a category.
+                            </WarningHolder>
+                        )}
+                        {noAmountWarning && (
+                            <WarningHolder>
+                                Please enter an amount.
+                            </WarningHolder>
                         )}
                     </div>
                 )}
