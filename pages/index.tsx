@@ -169,7 +169,7 @@ const TinyButton = styled.button`
 `;
 
 const NumberInput = styled.input`
-    font-size: 24px;
+    font-size: 35px;
     border: none;
     width: 50%;
     margin: 0 0 0 10px;
