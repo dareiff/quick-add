@@ -249,7 +249,7 @@ const Home: React.FC = () => {
         category: LunchMoneyCategory;
         count: number
     }[]>([]);
-    const [recentCount, setRecentCount] = useState<number>(6);
+    const [recentCount, setRecentCount] = useState<number>(3);
     const [showRecent, setShowRecent] = useState(true);
     const [category, setCategory] = useState<LunchMoneyCategory | null>(null);
     const [error, setError] = useState<string>('');
