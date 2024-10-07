@@ -3,6 +3,7 @@ import React, { createRef, useEffect, useState, useRef } from 'react';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
 import Select from 'react-select';
+import CreatableSelect from 'react-select/creatable';
 
 const MoneyAdder = styled.div`
     display: flex;
@@ -235,6 +236,20 @@ interface LunchMoneyCategory {
     archived: boolean;
 }
 
+const components = {
+    DropdownIndicator: null,
+};
+
+interface Option {
+    readonly label: string;
+    readonly value: string;
+}
+
+const createOption = (label: string) => ({
+    label,
+    value: label,
+});
+
 const Home: React.FC = () => {
     const [authenticated, setAuthenticated] = useState<boolean>(false);
     const [amount, setAmount] = useState<number>(0);
@@ -261,6 +276,9 @@ const Home: React.FC = () => {
     const notesRef = createRef<HTMLInputElement>();
     const accessRef = createRef<HTMLInputElement>();
     const recentCountRef = createRef<HTMLInputElement>();
+
+    const [inputValue, setInputValue] = useState('');
+    const [tags, setTags] = useState<readonly Option[]>([]);
 
     const [selectedCategory, setSelectedCategory] = useState<any>(null);
 
@@ -312,6 +330,17 @@ const Home: React.FC = () => {
             });
     };
 
+    const handleKeyDown: KeyboardEventHandler = (event) => {
+        if (!inputValue) return;
+        switch (event.key) {
+            case 'Enter':
+            case 'Tab':
+                setTags((prev) => [...prev, createOption(inputValue)]);
+                setInputValue('');
+                event.preventDefault();
+        }
+    };
+
     useEffect(() => {
         // try to get localstorage
         if (localStorage.getItem('access_token') === null) {
@@ -334,6 +363,11 @@ const Home: React.FC = () => {
         const storedRecentCount = localStorage.getItem('recentCount');
         if (storedRecentCount) {
             setRecentCount(parseInt(storedRecentCount, 10));
+        }
+
+        const storedTags = localStorage.getItem('tags');
+        if (storedTags) {
+            setTags(JSON.parse(storedTags));
         }
     }, []);
 
@@ -382,6 +416,10 @@ const Home: React.FC = () => {
         }
         localStorage.setItem('recentCount', recentCount.toString());
     }, [recentCategories, recentCount]);
+
+    useEffect(() => {
+        localStorage.setItem('tags', JSON.stringify(tags));
+    }, [tags]);
 
     const updateRecentCategories = (newCategory: LunchMoneyCategory) => {
         let updatedRecent = [...recentCategories];
@@ -441,6 +479,7 @@ const Home: React.FC = () => {
             return;
         } else {
             var now = dayjs();
+            const tagsForAPI = tags.map((tag) => tag.value);
             await fetch('https://dev.lunchmoney.app/v1/transactions', {
                 method: 'POST',
                 headers: {
@@ -456,6 +495,7 @@ const Home: React.FC = () => {
                             date: now.format('YYYY-MM-DD').toString(),
                             payee: 'CASH',
                             notes: notes,
+                            tags: tagsForAPI,
                         },
                     ],
                 }),
@@ -566,6 +606,21 @@ const Home: React.FC = () => {
                                         value={recentCount}
                                         onChange={handleRecentCountChange}
                                         min="1"  // Prevent negative or zero values
+                                    />
+                                </div>
+                                <div>
+                                    <p>(Optional): Tag transactions -- multiple OK:</p> {/* Label for the multi-select */}
+                                    <CreatableSelect
+                                        components={components}
+                                        inputValue={inputValue}
+                                        isClearable
+                                        isMulti
+                                        menuIsOpen={false}
+                                        onChange={(newValue) => setTags(newValue)}
+                                        onInputChange={(newValue: any) => setInputValue(newValue as string)}
+                                        onKeyDown={handleKeyDown}
+                                        placeholder="Type tags and press enter/tab..."
+                                        value={tags}
                                     />
                                 </div>
                             </div>
