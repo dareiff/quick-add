@@ -208,6 +208,21 @@ const WarningHolder = styled.div`
     color: red;
 `;
 
+const SelectContainer = styled.div`
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 10px 0;
+`;
+
+const StyledSelect = styled.select`
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #404040;
+    border-radius: 5px;
+`;
+
 const Footer = styled.div`
     width: 100%;
     border-top: 1px solid #eaeaea;
@@ -424,6 +439,8 @@ const Home: React.FC = () => {
                 JSON.stringify(recentCategories),
             );
         }
+        const updatedRecentCategories = recentCategories.slice(0, recentCount);
+        setRecentCategories(updatedRecentCategories); // Trigger a re-render
         localStorage.setItem('recentCount', recentCount.toString());
     }, [recentCategories, recentCount]);
 
@@ -455,23 +472,9 @@ const Home: React.FC = () => {
         setNoCategoryWarning(false);
     };
 
-    const handleRecentCountChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-        let newValue = e.target.value;
-
-        // Allow backspace to clear the input
-        if (newValue === "") {
-            setRecentCount(0);  // Or another default value if you prefer
-            return;
-        }
-
-        const parsedValue = parseInt(newValue, 10);
-        if (!isNaN(parsedValue) && parsedValue > 0) {
-            setRecentCount(parsedValue);
-            setRecentCategories(prevRecent => prevRecent.slice(0, parsedValue));
-        } else if (newValue !== "" ) { // Only show alert if the input is not empty
-            if (recentCountRef.current) recentCountRef.current.value = recentCount.toString(); //reset input if invalid
-            alert('Please enter a valid positive number.');
-        }
+    const handleRecentCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = parseInt(e.target.value, 10);
+        setRecentCount(value);
     };
 
     const handleNotesKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -616,15 +619,20 @@ const Home: React.FC = () => {
                                     </div>
                                 )}
                                 <div>
-                                    <p></p><label htmlFor="recentCount">Number of recent categories to show:</label>
-                                    <TinyField
-                                        id="recentCount"
-                                        type="number"
-                                        ref={recentCountRef}
-                                        value={recentCount === 0 ? "" : recentCount} // Allow input to be cleared
-                                        onChange={handleRecentCountChange}
-                                        min="0"
-                                    />
+                                    <label htmlFor="recentCount">Number of recent categories to show:</label>
+                                    <SelectContainer>
+                                        <StyledSelect
+                                            id="recentCount"
+                                            value={recentCount}
+                                            onChange={handleRecentCountChange}
+                                        >
+                                            {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                                                <option key={num} value={num}>
+                                                    {num}
+                                                </option>
+                                            ))}
+                                        </StyledSelect>
+                                    </SelectContainer>
                                 </div>
                                 <div>
                                     <p><label htmlFor="tags">(Optional): Transaction tags:</label></p>
