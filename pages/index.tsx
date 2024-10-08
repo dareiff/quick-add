@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import React, { createRef, useEffect, useState, useRef } from 'react';
+import React, { createRef, useEffect, useState, useRef, KeyboardEventHandler } from 'react';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
 import Select from 'react-select';
@@ -332,10 +332,20 @@ const Home: React.FC = () => {
 
     const handleKeyDown: KeyboardEventHandler = (event) => {
         if (!inputValue) return;
+
         switch (event.key) {
             case 'Enter':
             case 'Tab':
-                setTags((prev) => [...prev, createOption(inputValue)]);
+                const newTag = createOption(inputValue);
+                // Check if the tag already exists (case-insensitive)
+                const tagExists = tags.some(
+                    (tag) => tag.value.toLowerCase() === newTag.value.toLowerCase()
+                );
+
+                if (!tagExists) { // Only add if it doesn't exist
+                    setTags((prev) => [...prev, newTag]);
+                }
+
                 setInputValue('');
                 event.preventDefault();
         }
@@ -609,8 +619,9 @@ const Home: React.FC = () => {
                                     />
                                 </div>
                                 <div>
-                                    <p>(Optional): Tag transactions -- multiple OK:</p> {/* Label for the multi-select */}
+                                    <p><label htmlFor="tags">(Optional): Transaction tags:</label></p>
                                     <CreatableSelect
+                                        id="tags"
                                         components={components}
                                         inputValue={inputValue}
                                         isClearable
