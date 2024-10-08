@@ -218,9 +218,11 @@ const SelectContainer = styled.div`
 const StyledSelect = styled.select`
     width: 100%;
     padding: 8px;
-    font-size: 16px;
+    font-size: 20px;
     border: 1px solid #404040;
     border-radius: 5px;
+    color: '#404040',
+    background-color: '#fff',
 `;
 
 const Footer = styled.div`
