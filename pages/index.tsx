@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import React, { createRef, useEffect, useState, useRef, KeyboardEventHandler } from 'react';
+import React, { createRef, useEffect, useState, useRef, KeyboardEventHandler, ChangeEventHandler } from 'react';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
 import Select from 'react-select';
@@ -455,16 +455,24 @@ const Home: React.FC = () => {
         setNoCategoryWarning(false);
     };
 
-    const handleRecentCountChange = () => {
-        if (recentCountRef.current) {
-            const newCount = parseInt(recentCountRef.current.value, 10);
-            if (!isNaN(newCount) && newCount > 0) { // Validate input
-                setRecentCount(newCount);
-                // Re-apply limit to recentCategories based on new count:
-                setRecentCategories(prevRecent => prevRecent.slice(0, newCount));
-            }
+    const handleRecentCountChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+        let newValue = e.target.value;
+
+        // Allow backspace to clear the input
+        if (newValue === "") {
+            setRecentCount(0);  // Or another default value if you prefer
+            return;
         }
-    }
+
+        const parsedValue = parseInt(newValue, 10);
+        if (!isNaN(parsedValue) && parsedValue > 0) {
+            setRecentCount(parsedValue);
+            setRecentCategories(prevRecent => prevRecent.slice(0, parsedValue));
+        } else if (newValue !== "" ) { // Only show alert if the input is not empty
+            if (recentCountRef.current) recentCountRef.current.value = recentCount.toString(); //reset input if invalid
+            alert('Please enter a valid positive number.');
+        }
+    };
 
     const handleNotesKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {  // Check if Enter key is pressed
@@ -613,9 +621,9 @@ const Home: React.FC = () => {
                                         id="recentCount"
                                         type="number"
                                         ref={recentCountRef}
-                                        value={recentCount}
+                                        value={recentCount === 0 ? "" : recentCount} // Allow input to be cleared
                                         onChange={handleRecentCountChange}
-                                        min="1"  // Prevent negative or zero values
+                                        min="0"
                                     />
                                 </div>
                                 <div>
