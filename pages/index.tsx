@@ -4,6 +4,8 @@ import dayjs from 'dayjs';
 import styled from 'styled-components';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
+import {Popover, PopoverTrigger, PopoverContent} from "@nextui-org/popover";
+
 
 const MoneyAdder = styled.div`
     display: flex;
@@ -132,7 +134,7 @@ const MainContainer = styled.div`
         margin: 10px 0;
         font-weight: 600;
         width: 100%;
-        font-size: 15px;
+        font-size: 16px;
     }
 `;
 
@@ -256,16 +258,13 @@ const HelpIcon = styled.span`
     }
 `;
 
-const HelpTooltip = styled.span`
-    font-size: 20px;
-    display: none;
-    position: absolute;
+const HelpTooltip = styled.div`
+    font-size: 14px;
     background-color: #99cbff;
     border: 1px solid #ccc;
     padding: 8px;
     border-radius: 4px;
-    z-index: 1; /* Ensure it's above other elements */
-    white-space: pre-wrap; /* Allow multi-line tooltips */
+    max-width: 300px;
 `;
 
 const HelpIconContainer = styled.div`
@@ -757,34 +756,33 @@ const Home: React.FC = () => {
                                     />
                                 </div>
                                 <div>
-                                <HelpIconContainer>
-                                    <p></p><label htmlFor="offsetCategory">(Optional) Offset transaction category:</label>
-                                    <HelpIcon
-                                        onMouseEnter={() => setShowTooltip(true)}
-                                        onMouseLeave={() => setShowTooltip(false)}
-                                        onClick={() => setShowTooltip(!showTooltip)} // Toggle on click
-                                        aria-label="Offset Category Help" // For accessibility
-                                    >
-                                        ?
-                                    </HelpIcon>
-                                    {showTooltip && (
-                                        <HelpTooltip>
-                                            Automatically create a second offset transaction
-                                            with the opposite amount. Normally, it would be the category
-                                            used for ATM cash withdrawals to balance it.
-                                        </HelpTooltip>
-                                    )}
-                                    <CreatableSelect
-                                        id="offsetCategory"
-                                        isClearable
-                                        value={offsetCategory ? { value: offsetCategory, label: offsetCategory.name } : null}
-                                        onChange={handleOffsetCategoryChange}
-                                        options={offsetCategoryOptions}
-                                        placeholder="Select an offset category..."
-                                        styles={menuStyles}
-                                    />
-                            </HelpIconContainer>
+                                <p></p><label htmlFor="offsetCategory">(Optional) Offset transaction category:</label>
+                                <Popover placement="top-start">
+                                    <PopoverTrigger>
+                                        <HelpIcon>?</HelpIcon>
+                                    </PopoverTrigger>
+                                    <PopoverContent>
+                                        <div className="px-1 py-2">
+                                            <HelpTooltip>
+                                                Automatically create a second offset transaction
+                                                with the opposite amount. Normally, it would be the category
+                                                used for ATM cash withdrawals to balance it.
+                                            </HelpTooltip>
+                                            </div>
+                                    </PopoverContent>
+                                </Popover>
+                                        <CreatableSelect
+                                            id="offsetCategory"
+                                            isClearable
+                                            value={offsetCategory ? { value: offsetCategory, label: offsetCategory.name } : null}
+                                            onChange={handleOffsetCategoryChange}
+                                            options={offsetCategoryOptions}
+                                            placeholder="Select an offset category..."
+                                            styles={menuStyles}
+                                        />
+
                                 </div>
+
                             </div>
                         )}
                     </div>

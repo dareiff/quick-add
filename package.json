@@ -9,6 +9,7 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "@nextui-org/popover": "^2.1.29",
         "dayjs": "^1.11.12",
         "next": "^14.2.14",
         "next-plausible": "^3.12.1",
