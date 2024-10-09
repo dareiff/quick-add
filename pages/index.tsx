@@ -259,21 +259,12 @@ const HelpIcon = styled.span`
 `;
 
 const HelpTooltip = styled.div`
-    font-size: 14px;
+    font-size: 16px;
     background-color: #99cbff;
     border: 1px solid #ccc;
     padding: 8px;
     border-radius: 4px;
     max-width: 300px;
-`;
-
-const HelpIconContainer = styled.div`
-  position: relative;
-  display: inline-block;
-
-  &:hover ${HelpTooltip} {
-    display: block;
-  }
 `;
 
 interface LunchMoneyCategory {
@@ -738,7 +729,18 @@ const Home: React.FC = () => {
                                     </SelectContainer>
                                 </div>
                                 <div>
-                                    <p></p><label htmlFor="tags">(Optional): Transaction tags:</label>
+                                    <p></p><label htmlFor="tags">Transaction tag(s):</label>
+                                    <Popover placement="top-start">
+                                    <PopoverTrigger>
+                                        <HelpIcon>?</HelpIcon>
+                                    </PopoverTrigger>
+                                    <PopoverContent>
+                                        <HelpTooltip>
+                                            Automatically tag transactions. Supports none, one or multiple tags.
+                                            If the tag name is new a new tag will be automatically created.
+                                        </HelpTooltip>
+                                    </PopoverContent>
+                                </Popover>
                                     <CreatableSelect
                                         id="tags"
                                         components={components}
@@ -756,19 +758,18 @@ const Home: React.FC = () => {
                                     />
                                 </div>
                                 <div>
-                                <p></p><label htmlFor="offsetCategory">(Optional) Offset transaction category:</label>
+                                <p></p><label htmlFor="offsetCategory">Offset transaction category:</label>
                                 <Popover placement="top-start">
                                     <PopoverTrigger>
                                         <HelpIcon>?</HelpIcon>
                                     </PopoverTrigger>
                                     <PopoverContent>
-                                        <div className="px-1 py-2">
-                                            <HelpTooltip>
-                                                Automatically create a second offset transaction
-                                                with the opposite amount. Normally, it would be the category
-                                                used for ATM cash withdrawals to balance it.
-                                            </HelpTooltip>
-                                            </div>
+                                        <HelpTooltip>
+                                            Automatically create a second offset transaction
+                                            with the opposite amount. This would normally with the category
+                                            you use for ATM/cash withdrawals, so that this offset transaction
+                                            helps balance such category.
+                                        </HelpTooltip>
                                     </PopoverContent>
                                 </Popover>
                                         <CreatableSelect
