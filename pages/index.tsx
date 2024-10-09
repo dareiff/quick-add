@@ -729,7 +729,7 @@ const Home: React.FC = () => {
                                     </div>
                                 )}
                                 <div>
-                                    <p></p><label htmlFor="recentCount">Number of recent categories to show:</label>
+                                    <p></p><label htmlFor="recentCount">Recent categories to show:</label>
                                     <SelectContainer>
                                         <StyledSelect
                                             id="recentCount"
