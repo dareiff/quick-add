@@ -256,7 +256,7 @@ const HelpIcon = styled.span`
 `;
 
 const HelpTooltip = styled.span`
-    font-size: 16px;
+    font-size: 20px;
     display: none;
     position: absolute;
     background-color: #99cbff;
