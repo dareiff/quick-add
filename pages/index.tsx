@@ -427,6 +427,20 @@ const Home: React.FC = () => {
         }
     };
 
+    const handleBlur = () => {
+        if (inputValue) { // Only if there's a value
+            const newTag = createOption(inputValue);
+            const tagExists = tags.some(
+                (tag) => tag.value.toLowerCase() === newTag.value.toLowerCase()
+            );
+
+            if (!tagExists) {
+                setTags((prev) => [...prev, newTag]);
+            }
+            setInputValue(''); // Clear the input
+        }
+    };
+
     useEffect(() => {
         // try to get localstorage
         if (localStorage.getItem('access_token') === null) {
@@ -742,6 +756,7 @@ const Home: React.FC = () => {
                                         onChange={(newValue) => setTags(newValue)}
                                         onInputChange={(newValue: any) => setInputValue(newValue as string)}
                                         onKeyDown={handleKeyDown}
+                                        onBlur={handleBlur}
                                         placeholder="Type tags and press enter/tab..."
                                         value={tags}
                                     />
