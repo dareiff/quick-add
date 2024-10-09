@@ -241,12 +241,12 @@ const Footer = styled.div`
 
 const HelpIcon = styled.span`
     display: inline-block;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     border: 1px solid #ccc;
     text-align: center;
-    line-height: 16px;
+    line-height: 20px;
     cursor: pointer;
     margin-left: 5px; /* Adjust as needed */
 
