@@ -518,21 +518,7 @@ const Home: React.FC = () => {
 
     useEffect(() => {
         localStorage.setItem('recentCount', recentCount.toString());
-
-        // Sort and slice recentCategories based on recentCount
-        let updatedRecentCategories = [...recentCategories];
-        updatedRecentCategories.sort((a, b) => b.count - a.count); // Sort by count
-
-        if (updatedRecentCategories.length > recentCount) {
-            updatedRecentCategories = updatedRecentCategories.slice(0, recentCount);
-        }
-
-        // Update state and local storage ONLY if there's a change
-        if (JSON.stringify(updatedRecentCategories) !== JSON.stringify(recentCategories)) {
-            setRecentCategories(updatedRecentCategories);
-            localStorage.setItem('recentCategories', JSON.stringify(updatedRecentCategories));
-        }
-    }, [recentCount, recentCategories]); 
+    }, [recentCount]);
 
     const updateRecentCategories = (newCategory: LunchMoneyCategory) => {
         let updatedRecent = [...recentCategories];
@@ -541,11 +527,18 @@ const Home: React.FC = () => {
         if (existingCategoryIndex !== -1) {
             updatedRecent[existingCategoryIndex].count++;
         } else {
-             updatedRecent.unshift({ category: newCategory, count: 1 });
-             updatedRecent = updatedRecent.slice(0, recentCount);
+            updatedRecent.unshift({ category: newCategory, count: 1 });
         }
-        setRecentCategories(updatedRecent);
-        setNoCategoryWarning(false);
+
+        // Sort and slice BEFORE updating state
+        updatedRecent.sort((a, b) => b.count - a.count);
+        updatedRecent = updatedRecent.slice(0, recentCount);
+
+        // Update state and local storage ONLY if there's a change
+        if (JSON.stringify(updatedRecent) !== JSON.stringify(recentCategories)) {
+            setRecentCategories(updatedRecent);  // Update state first
+            localStorage.setItem('recentCategories', JSON.stringify(updatedRecent));
+        }
     };
 
     const handleRecentCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
