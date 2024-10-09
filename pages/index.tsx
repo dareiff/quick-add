@@ -275,6 +275,10 @@ const HelpIconContainer = styled.div`
   &:hover ${HelpTooltip} {
     display: block;
   }
+
+  label {
+        font-size: 17px;
+  }
 `;
 
 interface LunchMoneyCategory {
@@ -757,8 +761,8 @@ const Home: React.FC = () => {
                                     />
                                 </div>
                                 <div>
-                                <p></p><label htmlFor="offsetCategory">(Optional) Offset transaction category:</label>
                                 <HelpIconContainer>
+                                    <p></p><label htmlFor="offsetCategory">(Optional) Offset transaction category:</label>
                                     <HelpIcon
                                         onMouseEnter={() => setShowTooltip(true)}
                                         onMouseLeave={() => setShowTooltip(false)}
