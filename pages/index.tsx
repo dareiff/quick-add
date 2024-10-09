@@ -744,7 +744,6 @@ const Home: React.FC = () => {
                                         onKeyDown={handleKeyDown}
                                         placeholder="Type tags and press enter/tab..."
                                         value={tags}
-                                        styles={menuStyles}
                                     />
                                 </div>
                                 <div>
@@ -772,7 +771,6 @@ const Home: React.FC = () => {
                                         onChange={handleOffsetCategoryChange}
                                         options={offsetCategoryOptions}
                                         placeholder="Select an offset category..."
-                                        styles={menuStyles}
                                     />
                             </HelpIconContainer>
                                 </div>
