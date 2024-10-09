@@ -225,6 +225,14 @@ const StyledSelect = styled.select`
     background-color: '#fff',
 `;
 
+const StyledCreatableSelect = styled(CreatableSelect)`
+    width: 100%;
+    padding: 8px;
+    font-size: 20px;
+    color: '#404040',
+    background-color: '#fff',
+`;
+
 const Footer = styled.div`
     width: 100%;
     border-top: 1px solid #eaeaea;
@@ -717,8 +725,8 @@ const Home: React.FC = () => {
                                     </SelectContainer>
                                 </div>
                                 <div>
-                                    <p><label htmlFor="tags">(Optional): Transaction tags:</label></p>
-                                    <CreatableSelect
+                                    <p></p><label htmlFor="tags">(Optional): Transaction tags:</label>
+                                    <StyledCreatableSelect
                                         id="tags"
                                         components={components}
                                         inputValue={inputValue}
@@ -733,9 +741,8 @@ const Home: React.FC = () => {
                                     />
                                 </div>
                                 <div>
-                                <p></p>
                                 <HelpIconContainer>
-                                    <label htmlFor="offsetCategory">(Optional) Offset transaction category:</label>
+                                <p></p><label htmlFor="offsetCategory">(Optional) Offset transaction category:</label>
                                     <HelpIcon
                                         onMouseEnter={() => setShowTooltip(true)}
                                         onMouseLeave={() => setShowTooltip(false)}
@@ -751,7 +758,7 @@ const Home: React.FC = () => {
                                             used for ATM cash withdrawals to balance it.
                                         </HelpTooltip>
                                     )}
-                                    <CreatableSelect
+                                    <StyledCreatableSelect
                                         id="offsetCategory"
                                         isClearable
                                         value={offsetCategory ? { value: offsetCategory, label: offsetCategory.name } : null}
