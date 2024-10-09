@@ -225,14 +225,6 @@ const StyledSelect = styled.select`
     background-color: '#fff',
 `;
 
-const StyledCreatableSelect = styled(CreatableSelect)`
-    width: 100%;
-    padding: 8px;
-    font-size: 20px;
-    color: '#404040',
-    background-color: '#fff',
-`;
-
 const Footer = styled.div`
     width: 100%;
     border-top: 1px solid #eaeaea;
@@ -313,6 +305,20 @@ const createOption = (label: string) => ({
 });
 
 const Home: React.FC = () => {
+    const menuStyles = {
+        control: (provided, state) => ({
+            ...provided,
+            padding: '6px 6px',
+            margin: 'auto',
+            color: '#404040',
+            fontSize: '20px',
+            backgroundColor: '#fff',
+            borderRadius: '5px',
+            border: '1px solid #404040',
+            width: '100%',
+        }),
+    };
+
     const [authenticated, setAuthenticated] = useState<boolean>(false);
     const [amount, setAmount] = useState<number>(0);
     const [notes, setNotes] = useState<string>('');
@@ -726,7 +732,7 @@ const Home: React.FC = () => {
                                 </div>
                                 <div>
                                     <p></p><label htmlFor="tags">(Optional): Transaction tags:</label>
-                                    <StyledCreatableSelect
+                                    <CreatableSelect
                                         id="tags"
                                         components={components}
                                         inputValue={inputValue}
@@ -738,6 +744,7 @@ const Home: React.FC = () => {
                                         onKeyDown={handleKeyDown}
                                         placeholder="Type tags and press enter/tab..."
                                         value={tags}
+                                        styles={menuStyles}
                                     />
                                 </div>
                                 <div>
@@ -758,13 +765,14 @@ const Home: React.FC = () => {
                                             used for ATM cash withdrawals to balance it.
                                         </HelpTooltip>
                                     )}
-                                    <StyledCreatableSelect
+                                    <CreatableSelect
                                         id="offsetCategory"
                                         isClearable
                                         value={offsetCategory ? { value: offsetCategory, label: offsetCategory.name } : null}
                                         onChange={handleOffsetCategoryChange}
                                         options={offsetCategoryOptions}
                                         placeholder="Select an offset category..."
+                                        styles={menuStyles}
                                     />
                             </HelpIconContainer>
                                 </div>
@@ -881,19 +889,7 @@ const Home: React.FC = () => {
                                     options={categoryOptions}
                                     isSearchable={false}
                                     placeholder={recentCategories.length === 0 ? 'Select a category...' : 'More categories...'}
-                                    styles={{
-                                        control: (provided) => ({
-                                            ...provided,
-                                            padding: '6px 6px',
-                                            margin: 'auto',
-                                            color: '#404040',
-                                            fontSize: '20px',
-                                            backgroundColor: '#fff',
-                                            borderRadius: '5px',
-                                            border: '1px solid #404040',
-                                            width: '100%',
-                                        }),
-                                    }}
+                                    styles={menuStyles}
                                 />
                             </>
                         )}
