@@ -454,7 +454,7 @@ const Home: React.FC = () => {
             setRecentCategories(updatedRecentCategories);
             localStorage.setItem('recentCategories', JSON.stringify(updatedRecentCategories));
         }
-    }, [recentCategories, recentCount]);
+    }, [recentCount, recentCategories]); 
 
     const updateRecentCategories = (newCategory: LunchMoneyCategory) => {
         let updatedRecent = [...recentCategories];
@@ -464,6 +464,7 @@ const Home: React.FC = () => {
             updatedRecent[existingCategoryIndex].count++;
         } else {
              updatedRecent.unshift({ category: newCategory, count: 1 });
+             updatedRecent = updatedRecent.slice(0, recentCount);
         }
         setRecentCategories(updatedRecent);
         setNoCategoryWarning(false);
