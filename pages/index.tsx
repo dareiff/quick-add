@@ -744,9 +744,9 @@ const Home: React.FC = () => {
                                     >
                                         ?
                                     </HelpIcon>
-                                    {showTooltip && ( // Conditionally render the tooltip
+                                    {showTooltip && (
                                         <HelpTooltip>
-                                            Automatically create a second  "offset" transaction
+                                            Automatically create a second offset transaction
                                             with the opposite amount. Normally, it'd be the category
                                             used for ATM cash withdrawals to balance it.
                                         </HelpTooltip>
