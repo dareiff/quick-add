@@ -132,7 +132,7 @@ const MainContainer = styled.div`
         margin: 10px 0;
         font-weight: 600;
         width: 100%;
-        font-size: 18px;
+        font-size: 16px;
     }
 `;
 
@@ -277,7 +277,7 @@ const HelpIconContainer = styled.div`
   }
 
   label {
-        font-size: 17px;
+        font-size: 16px;
   }
 `;
 
