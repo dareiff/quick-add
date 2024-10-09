@@ -435,40 +435,35 @@ const Home: React.FC = () => {
     }, [showQuickButtons]);
 
     useEffect(() => {
-        if (recentCategories.length > 0) {
-            localStorage.setItem(
-                'recentCategories',
-                JSON.stringify(recentCategories),
-            );
-        }
-        const updatedRecentCategories = recentCategories.slice(0, recentCount);
-        setRecentCategories(updatedRecentCategories); // Trigger a re-render
-        localStorage.setItem('recentCount', recentCount.toString());
-    }, [recentCategories, recentCount]);
-
-    useEffect(() => {
         localStorage.setItem('tags', JSON.stringify(tags));
     }, [tags]);
 
+    useEffect(() => {
+        localStorage.setItem('recentCount', recentCount.toString());
+
+        // Sort and slice recentCategories based on recentCount
+        let updatedRecentCategories = [...recentCategories];
+        updatedRecentCategories.sort((a, b) => b.count - a.count); // Sort by count
+
+        if (updatedRecentCategories.length > recentCount) {
+            updatedRecentCategories = updatedRecentCategories.slice(0, recentCount);
+        }
+
+        // Update state and local storage ONLY if there's a change
+        if (JSON.stringify(updatedRecentCategories) !== JSON.stringify(recentCategories)) {
+            setRecentCategories(updatedRecentCategories);
+            localStorage.setItem('recentCategories', JSON.stringify(updatedRecentCategories));
+        }
+    }, [recentCategories, recentCount]);
+
     const updateRecentCategories = (newCategory: LunchMoneyCategory) => {
         let updatedRecent = [...recentCategories];
-
-        const existingCategoryIndex = updatedRecent.findIndex(
-            (item) => item.category.id === newCategory.id,
-        );
+        const existingCategoryIndex = updatedRecent.findIndex(item => item.category.id === newCategory.id);
 
         if (existingCategoryIndex !== -1) {
-            // Category exists, increment count but don't move.
             updatedRecent[existingCategoryIndex].count++;
-       } else {
-            if (updatedRecent.length >= recentCount) {
-                // Sort by count descending
-                updatedRecent.sort((a, b) => b.count - a.count);
-                updatedRecent.pop(); // Remove the least used/oldest
-            }
-            // New category, add it to the beginning with count 1
-            updatedRecent.unshift({ category: newCategory, count: 1 }); // Add to beginning
-
+        } else {
+             updatedRecent.unshift({ category: newCategory, count: 1 });
         }
         setRecentCategories(updatedRecent);
         setNoCategoryWarning(false);
