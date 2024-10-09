@@ -729,15 +729,17 @@ const Home: React.FC = () => {
                                     </SelectContainer>
                                 </div>
                                 <div>
-                                    <p></p><label htmlFor="tags">Transaction tag(s):</label>
+                                    <p></p><label htmlFor="tags">Tag all transactions as:</label>
                                     <Popover placement="top-start">
                                     <PopoverTrigger>
                                         <HelpIcon>?</HelpIcon>
                                     </PopoverTrigger>
                                     <PopoverContent>
                                         <HelpTooltip>
-                                            Automatically tag transactions. Supports none, one or multiple tags.
-                                            If the tag name is new a new tag will be automatically created.
+                                            Tag(s) that will be added to all transactions (e.g., &quot;cash&quot;,
+                                            or &quot; manual-cash&quot;) to make it easier to track transactions
+                                            entered from this tool.
+                                            <p></p>Leave empty to disable.
                                         </HelpTooltip>
                                     </PopoverContent>
                                 </Popover>
@@ -748,13 +750,13 @@ const Home: React.FC = () => {
                                         isClearable
                                         isMulti
                                         menuIsOpen={false}
-                                        onChange={(newValue) => setTags(newValue)}
+                                        onChange={(newValue) => {setTags(newValue)}}
                                         onInputChange={(newValue: any) => setInputValue(newValue as string)}
                                         onKeyDown={handleKeyDown}
                                         onBlur={handleBlur}
-                                        placeholder="Type tags and press enter/tab..."
                                         value={tags}
                                         styles={menuStyles}
+                                        placeholder= "Type to set tag(s)..."
                                     />
                                 </div>
                                 <div>
@@ -765,10 +767,12 @@ const Home: React.FC = () => {
                                     </PopoverTrigger>
                                     <PopoverContent>
                                         <HelpTooltip>
-                                            Automatically create a second offset transaction
-                                            with the opposite amount. This would normally with the category
+                                            For every transaction, automatically create a second offset transaction
+                                            with the opposite amount. This would normally be the category
                                             you use for ATM/cash withdrawals, so that this offset transaction
-                                            helps balance such category.
+                                            helps balance such category. This is almost equivalnt to Mint's
+                                            &quot;Deduct from last Cash & ATM transaction&quot; feature.
+                                            <p></p>Leave empty to disable.
                                         </HelpTooltip>
                                     </PopoverContent>
                                 </Popover>
@@ -778,7 +782,7 @@ const Home: React.FC = () => {
                                             value={offsetCategory ? { value: offsetCategory, label: offsetCategory.name } : null}
                                             onChange={handleOffsetCategoryChange}
                                             options={offsetCategoryOptions}
-                                            placeholder="Select an offset category..."
+                                            placeholder="Select ATM withdrawals category..."
                                             styles={menuStyles}
                                         />
 
