@@ -239,6 +239,43 @@ const Footer = styled.div`
     }
 `;
 
+const HelpIcon = styled.span`
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    text-align: center;
+    line-height: 16px;
+    cursor: pointer;
+    margin-left: 5px; /* Adjust as needed */
+
+    &:hover {
+        background-color: #eee;
+    }
+`;
+
+const HelpTooltip = styled.span`
+    font-size: 16px;
+    display: none;
+    position: absolute;
+    background-color: #99cbff;
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 4px;
+    z-index: 1; /* Ensure it's above other elements */
+    white-space: pre-wrap; /* Allow multi-line tooltips */
+`;
+
+const HelpIconContainer = styled.div`
+  position: relative;
+  display: inline-block;
+
+  &:hover ${HelpTooltip} {
+    display: block;
+  }
+`;
+
 interface LunchMoneyCategory {
     id: number;
     name: string;
@@ -297,6 +334,7 @@ const Home: React.FC = () => {
 
     const [inputValue, setInputValue] = useState('');
     const [tags, setTags] = useState<readonly Option[]>([]);
+    const [showTooltip, setShowTooltip] = useState(false);
 
     const [selectedCategory, setSelectedCategory] = useState<any>(null);
 
@@ -695,15 +733,33 @@ const Home: React.FC = () => {
                                     />
                                 </div>
                                 <div>
-                                <p></p><label htmlFor="offsetCategory">(Optional) Offset transaction category:</label>
-                                <CreatableSelect
-                                    id="offsetCategory"
-                                    isClearable
-                                    value={offsetCategory ? { value: offsetCategory, label: offsetCategory.name } : null}
-                                    onChange={handleOffsetCategoryChange}
-                                    options={offsetCategoryOptions}
-                                    placeholder="Select an offset category..."
-                                />
+                                <p></p>
+                                <HelpIconContainer>
+                                    <label htmlFor="offsetCategory">(Optional) Offset transaction category:</label>
+                                    <HelpIcon
+                                        onMouseEnter={() => setShowTooltip(true)}
+                                        onMouseLeave={() => setShowTooltip(false)}
+                                        onClick={() => setShowTooltip(!showTooltip)} // Toggle on click
+                                        aria-label="Offset Category Help" // For accessibility
+                                    >
+                                        ?
+                                    </HelpIcon>
+                                    {showTooltip && ( // Conditionally render the tooltip
+                                        <HelpTooltip>
+                                            Automatically create a second  "offset" transaction
+                                            with the opposite amount. Normally, it'd be the category
+                                            used for ATM cash withdrawals to balance it.
+                                        </HelpTooltip>
+                                    )}
+                                    <CreatableSelect
+                                        id="offsetCategory"
+                                        isClearable
+                                        value={offsetCategory ? { value: offsetCategory, label: offsetCategory.name } : null}
+                                        onChange={handleOffsetCategoryChange}
+                                        options={offsetCategoryOptions}
+                                        placeholder="Select an offset category..."
+                                    />
+                            </HelpIconContainer>
                                 </div>
                             </div>
                         )}
