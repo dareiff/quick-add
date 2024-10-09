@@ -283,6 +283,7 @@ const Home: React.FC = () => {
     const [recentCount, setRecentCount] = useState<number>(3);
     const [showRecent, setShowRecent] = useState(true);
     const [category, setCategory] = useState<LunchMoneyCategory | null>(null);
+    const [offsetCategory, setOffsetCategory] = useState<LunchMoneyCategory | null>(null);
     const [error, setError] = useState<string>('');
     const [settings, showSettings] = useState<boolean>(false);
     const [negative, setNegative] = useState<boolean>(true);
@@ -304,6 +305,12 @@ const Home: React.FC = () => {
                                  .filter(cat => !cat.exclude_from_budget)
                                  .filter(cat => !cat.exclude_from_totals)
                                  // Transform categories into options for react-select
+                                 .map((cat) => ({
+                                     value: cat,
+                                     label: cat.name,
+                                 })) || [];
+
+    const offsetCategoryOptions = cats?.filter(cat => !cat.archived)
                                  .map((cat) => ({
                                      value: cat,
                                      label: cat.name,
@@ -396,6 +403,11 @@ const Home: React.FC = () => {
         if (storedTags) {
             setTags(JSON.parse(storedTags));
         }
+
+        const storedOffsetCategory = localStorage.getItem('offsetCategory');
+        if (storedOffsetCategory) {
+            setOffsetCategory(JSON.parse(storedOffsetCategory));
+        }
     }, []);
 
     useEffect(() => {
@@ -482,6 +494,19 @@ const Home: React.FC = () => {
         }
     };
 
+    useEffect(() => {
+        if (offsetCategory) {
+            localStorage.setItem('offsetCategory', JSON.stringify(offsetCategory));
+        } else {
+            localStorage.removeItem('offsetCategory');
+        }
+    }, [offsetCategory]);
+
+
+    const handleOffsetCategoryChange = (selectedOption: any) => {
+        setOffsetCategory(selectedOption ? selectedOption.value : null);
+    };
+
     const insertTransaction = async () => {
         setLoading(true);
         let timeoutId: ReturnType<typeof setTimeout>;
@@ -496,55 +521,76 @@ const Home: React.FC = () => {
         if (amount === 0 || category === null) {
             setLoading(false);
             return;
-        } else {
-            var now = dayjs();
-            const tagsForAPI = tags.map((tag) => tag.value);
-            await fetch('https://dev.lunchmoney.app/v1/transactions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: 'Bearer ' + accessTokenInState,
-                },
-                body: JSON.stringify({
-                    debit_as_negative: true,
-                    transactions: [
-                        {
-                            amount: negative ? `-${amount}` : amount,
-                            category_id: category.id,
-                            date: now.format('YYYY-MM-DD').toString(),
-                            payee: 'CASH',
-                            notes: notes,
-                            tags: tagsForAPI,
-                        },
-                    ],
-                }),
-            })
-                .then((result) => result.json())
-                .then((res) => {
-                    console.log(res);
-                    if (category) { // Check if category is selected
-                        updateRecentCategories(category);
-                    }
-                    setLoading(false);
-                    setAmount(0);
-                    setSuccess(true);
-                    setNotes('');
-                    setChosenCategory(null);
-                    setSelectedCategory(null);
-                    setCategory(null);
-                    timeoutId = setTimeout(() => {
-                        setSuccess(false);
-                    }, 3000);
-
-                    return timeoutId; //return the timeout ID
-                })
-                .catch((err) => {
-                    console.log(err);
-                    setLoading(false);
-                    setError('error when inserting transaction');
-                    clearTimeout(timeoutId)
-                });
         }
+
+        var now = dayjs();
+        const date = now.format('YYYY-MM-DD').toString();
+        const payee = 'CASH';
+        const tagValues = tags.map((tag) => tag.value);
+
+        const transactionsToInsert = [{
+            amount: negative ? `-${amount}` : amount,
+            category_id: category.id,
+            date: date,
+            payee: payee,
+            notes: notes,
+            tags: tagValues,
+        }];
+
+        // Only add the offset transaction if it's an expense (negative amount)
+        if (offsetCategory) {
+            const transactionType = negative ? "Expense" : "Income";
+            let offsetNotes = `Offset for ${transactionType}: ${category.name}`;
+            if (notes) {
+                offsetNotes += ` (${notes})`;
+            }
+            transactionsToInsert.push({
+                amount: negative ? amount : `-${amount}`,  // Opposite amount
+                category_id: offsetCategory.id,
+                date: date,
+                payee: payee,
+                notes: offsetNotes,
+                tags: tagValues,
+            });
+        }
+
+        var now = dayjs();
+        await fetch('https://dev.lunchmoney.app/v1/transactions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + accessTokenInState,
+            },
+            body: JSON.stringify({
+                debit_as_negative: true,
+                transactions: transactionsToInsert,
+            }),
+        })
+            .then((result) => result.json())
+            .then((res) => {
+                console.log(res);
+                if (category) { // Check if category is selected
+                    updateRecentCategories(category);
+                }
+                setLoading(false);
+                setAmount(0);
+                setSuccess(true);
+                setNotes('');
+                setChosenCategory(null);
+                setSelectedCategory(null);
+                setCategory(null);
+                timeoutId = setTimeout(() => {
+                    setSuccess(false);
+                }, 3000);
+
+                return timeoutId; //return the timeout ID
+            })
+            .catch((err) => {
+                console.log(err);
+                setLoading(false);
+                setError('error when inserting transaction');
+                clearTimeout(timeoutId)
+            });
     };
 
     return (
@@ -617,7 +663,7 @@ const Home: React.FC = () => {
                                     </div>
                                 )}
                                 <div>
-                                    <label htmlFor="recentCount">Number of recent categories to show:</label>
+                                    <p></p><label htmlFor="recentCount">Number of recent categories to show:</label>
                                     <SelectContainer>
                                         <StyledSelect
                                             id="recentCount"
@@ -647,6 +693,17 @@ const Home: React.FC = () => {
                                         placeholder="Type tags and press enter/tab..."
                                         value={tags}
                                     />
+                                </div>
+                                <div>
+                                <p></p><label htmlFor="offsetCategory">(Optional) Offset transaction category:</label>
+                                <CreatableSelect
+                                    id="offsetCategory"
+                                    isClearable
+                                    value={offsetCategory ? { value: offsetCategory, label: offsetCategory.name } : null}
+                                    onChange={handleOffsetCategoryChange}
+                                    options={offsetCategoryOptions}
+                                    placeholder="Select an offset category..."
+                                />
                                 </div>
                             </div>
                         )}
