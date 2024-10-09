@@ -132,6 +132,7 @@ const MainContainer = styled.div`
         margin: 10px 0;
         font-weight: 600;
         width: 100%;
+        font-size: 18px;
     }
 `;
 
