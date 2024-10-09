@@ -757,8 +757,8 @@ const Home: React.FC = () => {
                                     />
                                 </div>
                                 <div>
-                                <HelpIconContainer>
                                 <p></p><label htmlFor="offsetCategory">(Optional) Offset transaction category:</label>
+                                <HelpIconContainer>
                                     <HelpIcon
                                         onMouseEnter={() => setShowTooltip(true)}
                                         onMouseLeave={() => setShowTooltip(false)}
