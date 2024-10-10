@@ -379,24 +379,26 @@ const Home: React.FC = () => {
     const downloadCats = async (at: string) => {
         console.log('are we doing this?');
 
-        await fetch('https://dev.lunchmoney.app/v1/categories', {
+        const result = await fetch('https://dev.lunchmoney.app/v1/categories', {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: 'Bearer ' + at,
             },
             method: 'GET',
-        })
-            .then((result) => result.json())
-            .then((result: any) => {
-                console.log('did we get anything?');
-                setCats(result.categories);
-            })
-            .catch(() => {
-                setError(
-                    'Something went wrong downloading categories. You might check your network connection, or your API key',
-                );
-                setCats(null);
-            });
+        });
+
+        if (!result.ok) { // Check for non-2xx status codes
+            const error = 'Something went wrong downloading categories. You might check your network connection, or your API key';
+            console.error(error);
+            setError(error);
+            setCats(null);
+            return;
+        }
+
+        const data = await result.json();
+        console.log('did we get anything?');
+        setCats(data.categories);
+        setError('');
     };
 
     const handleKeyDown: KeyboardEventHandler = (event) => {
@@ -813,7 +815,7 @@ const Home: React.FC = () => {
                 {authenticated && !settings && (
                     <div>
                         {error.length > 0 &&
-                            accessTokenInState.length !== 0 && <p>{error}</p>}
+                            accessTokenInState.length !== 0 && <p><WarningHolder>{error}</WarningHolder></p>}
                         <p></p>
                         <InputWrapper>
                             <DollarSign>$</DollarSign>
