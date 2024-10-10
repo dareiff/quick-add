@@ -365,6 +365,7 @@ const Home: React.FC = () => {
         setSelectedCategory(selectedOption);
         setChosenCategory(selectedOption.value);
         updateRecentCategories(selectedOption.value);
+        setNoCategoryWarning(false);
     };
 
     const setChosenCategory = (newCategory: LunchMoneyCategory) => {
@@ -907,6 +908,7 @@ const Home: React.FC = () => {
                                             onClick={() => {
                                                 setChosenCategory(catone.category);
                                                 updateRecentCategories(catone.category);
+                                                setNoCategoryWarning(false);
                                             }}
                                         >
                                             {catone.category.name}
