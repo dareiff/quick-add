@@ -564,7 +564,12 @@ const Home: React.FC = () => {
     }, [enableOffset]);
 
     const handleOffsetCategoryChange = (selectedOption: any) => {
-        setOffsetCategory(selectedOption ? selectedOption.value : null);
+        if (selectedOption) {
+            setOffsetCategory(selectedOption.value);
+        } else{
+            setOffsetCategory(null);
+            setEnableOffset(false);
+        }
     };
 
     const handleOffsetSwitchChange = (checked: boolean) => {
