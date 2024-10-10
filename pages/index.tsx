@@ -795,7 +795,7 @@ const Home: React.FC = () => {
                                             </HelpTooltip>
                                         </PopoverContent>
                                     </Popover>
-                                    <CreatableSelect
+                                    <Select
                                         id="offsetCategory"
                                         isClearable
                                         value={offsetCategory ? { value: offsetCategory, label: offsetCategory.name } : null}
