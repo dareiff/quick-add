@@ -809,7 +809,7 @@ const Home: React.FC = () => {
                                         value={offsetCategory ? { value: offsetCategory, label: offsetCategory.name } : null}
                                         onChange={handleOffsetCategoryChange}
                                         options={offsetCategoryOptions}
-                                        placeholder="Select offset category..."
+                                        placeholder="Select Cash/ATM category..."
                                         styles={menuStyles}
                                     />
                                 </div>
