@@ -575,6 +575,7 @@ const Home: React.FC = () => {
     const handleOffsetCategoryChange = (selectedOption: any) => {
         if (selectedOption) {
             setOffsetCategory(selectedOption.value);
+            setEnableOffset(true);
         } else{
             setOffsetCategory(null);
             setEnableOffset(false);
