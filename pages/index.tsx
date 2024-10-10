@@ -473,7 +473,8 @@ const Home: React.FC = () => {
 
         const storedEnableOffset = localStorage.getItem('enableOffset');
         if (storedEnableOffset) {
-            if (storedOffsetCategory !== null || selectedCategory.length > 0) {
+            if (storedOffsetCategory !== null ||
+                (selectedCategory !== null && selectedCategory.length > 0)) {
                 setEnableOffset(JSON.parse(storedEnableOffset));
             } else {
                 // Keep switch off if there is no category set.
@@ -484,7 +485,7 @@ const Home: React.FC = () => {
 
     useEffect(() => {
         // this is what we do AFTER they press the button to add the accesstoken to local state
-        if (accessTokenInState.length === 0) {
+        if (accessTokenInState === null || accessTokenInState.length === 0) {
             return;
         } else if (accessTokenInState.length > 1) {
             setAccessToken(localStorage.getItem('access_token'));
@@ -495,7 +496,7 @@ const Home: React.FC = () => {
     useEffect(() => {
         //this is what we do when the accessToken is in state and
         //we want to download the categories
-        if (accessTokenInState.length === 0) {
+        if (accessTokenInState === null || accessTokenInState.length === 0) {
             return;
         }
         downloadCats(accessTokenInState);
@@ -686,7 +687,7 @@ const Home: React.FC = () => {
                 {(!authenticated || settings) && (
                     <div style={{ width: '100%', margin: '20px 0' }}>
 
-                        {accessTokenInState.length === 0 ? (
+                        {accessTokenInState === null || accessTokenInState.length === 0 ? (
                             <div>
                                 <h3>Welcome!</h3>
                                 <p>This app lets you quickly add manual transactions to LunchMoney on the go.</p>
@@ -821,7 +822,7 @@ const Home: React.FC = () => {
                 {authenticated && !settings && (
                     <div>
                         {error.length > 0 &&
-                            accessTokenInState.length !== 0 && <p><WarningHolder>{error}</WarningHolder></p>}
+                            accessTokenInState !== null && accessTokenInState.length !== 0 && <p><WarningHolder>{error}</WarningHolder></p>}
                         <p></p>
                         <InputWrapper>
                             <DollarSign>$</DollarSign>
