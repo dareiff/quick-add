@@ -1,9 +1,10 @@
 import Head from 'next/head';
-import React, { createRef, useEffect, useState, useRef, KeyboardEventHandler, ChangeEventHandler } from 'react';
+import React, { createRef, useEffect, useState, useRef, KeyboardEventHandler } from 'react';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
+import Switch from "react-switch";
 import {Popover, PopoverTrigger, PopoverContent} from "@nextui-org/popover";
 
 
@@ -325,6 +326,7 @@ const Home: React.FC = () => {
     const [recentCount, setRecentCount] = useState<number>(3);
     const [showRecent, setShowRecent] = useState(true);
     const [category, setCategory] = useState<LunchMoneyCategory | null>(null);
+    const [enableOffset, setEnableOffset] = useState<boolean>(false);
     const [offsetCategory, setOffsetCategory] = useState<LunchMoneyCategory | null>(null);
     const [error, setError] = useState<string>('');
     const [settings, showSettings] = useState<boolean>(false);
@@ -465,6 +467,11 @@ const Home: React.FC = () => {
         if (storedOffsetCategory) {
             setOffsetCategory(JSON.parse(storedOffsetCategory));
         }
+
+        const storedEnableOffset = localStorage.getItem('enableOffset');
+        if (storedEnableOffset) {
+            setEnableOffset(JSON.parse(storedEnableOffset));
+        }
     }, []);
 
     useEffect(() => {
@@ -552,9 +559,16 @@ const Home: React.FC = () => {
         }
     }, [offsetCategory]);
 
+    useEffect(() => {
+        localStorage.setItem('enableOffset', JSON.stringify(enableOffset));
+    }, [enableOffset]);
 
     const handleOffsetCategoryChange = (selectedOption: any) => {
         setOffsetCategory(selectedOption ? selectedOption.value : null);
+    };
+
+    const handleOffsetSwitchChange = (checked: boolean) => {
+        setEnableOffset(checked);
     };
 
     const insertTransaction = async () => {
@@ -588,7 +602,7 @@ const Home: React.FC = () => {
         }];
 
         // Only add the offset transaction if it's an expense (negative amount)
-        if (offsetCategory) {
+        if (enableOffset && offsetCategory) {
             const transactionType = negative ? "Expense" : "Income";
             let offsetNotes = `Offset for ${transactionType}: ${category.name}`;
             if (notes) {
@@ -731,18 +745,18 @@ const Home: React.FC = () => {
                                 <div>
                                     <p></p><label htmlFor="tags">Tag all transactions as:</label>
                                     <Popover placement="top-start">
-                                    <PopoverTrigger>
-                                        <HelpIcon>?</HelpIcon>
-                                    </PopoverTrigger>
-                                    <PopoverContent>
-                                        <HelpTooltip>
-                                            Tag(s) that will be added to all transactions (e.g., &quot;cash&quot;,
-                                            or &quot; manual-cash&quot;) to make it easier to track transactions
-                                            entered from this tool.
-                                            <p></p>Leave empty to disable.
-                                        </HelpTooltip>
-                                    </PopoverContent>
-                                </Popover>
+                                        <PopoverTrigger>
+                                            <HelpIcon>?</HelpIcon>
+                                        </PopoverTrigger>
+                                        <PopoverContent>
+                                            <HelpTooltip>
+                                                Tag(s) that will be added to all transactions (e.g., &quot;cash&quot;,
+                                                &quot; manual-cash&quot;, &quot;milk-money&quot;, etc.) to make it easier
+                                                to track transactions entered from this tool.
+                                                <p></p>Leave empty to disable.
+                                            </HelpTooltip>
+                                        </PopoverContent>
+                                    </Popover>
                                     <CreatableSelect
                                         id="tags"
                                         components={components}
@@ -760,34 +774,32 @@ const Home: React.FC = () => {
                                     />
                                 </div>
                                 <div>
-                                <p></p><label htmlFor="offsetCategory">Offset transaction category:</label>
-                                <Popover placement="top-start">
-                                    <PopoverTrigger>
-                                        <HelpIcon>?</HelpIcon>
-                                    </PopoverTrigger>
-                                    <PopoverContent>
-                                        <HelpTooltip>
-                                            For every transaction, automatically create a second offset transaction
-                                            with the opposite amount. This would normally be the category
-                                            you use for ATM/cash withdrawals, so that this offset transaction
-                                            helps balance such category. This is almost equivalnt to Mint's
-                                            &quot;Deduct from last Cash & ATM transaction&quot; feature.
-                                            <p></p>Leave empty to disable.
-                                        </HelpTooltip>
-                                    </PopoverContent>
-                                </Popover>
-                                        <CreatableSelect
-                                            id="offsetCategory"
-                                            isClearable
-                                            value={offsetCategory ? { value: offsetCategory, label: offsetCategory.name } : null}
-                                            onChange={handleOffsetCategoryChange}
-                                            options={offsetCategoryOptions}
-                                            placeholder="Select ATM withdrawals category..."
-                                            styles={menuStyles}
-                                        />
-
+                                    <p></p><label htmlFor="offsetCategory">Offset transaction category:</label>
+                                    <Popover placement="top-start">
+                                        <PopoverTrigger>
+                                            <HelpIcon>?</HelpIcon>
+                                        </PopoverTrigger>
+                                        <PopoverContent>
+                                            <HelpTooltip>
+                                                For every transaction, automatically create a second offset transaction
+                                                with the opposite amount. This would normally be the category
+                                                you use for ATM/cash withdrawals, so that this offset transaction
+                                                helps balance such category. This is almost equivalnt to Mint's
+                                                &quot;Deduct from last Cash & ATM transaction&quot; feature.
+                                                <p></p>Leave empty to disable.
+                                            </HelpTooltip>
+                                        </PopoverContent>
+                                    </Popover>
+                                    <CreatableSelect
+                                        id="offsetCategory"
+                                        isClearable
+                                        value={offsetCategory ? { value: offsetCategory, label: offsetCategory.name } : null}
+                                        onChange={handleOffsetCategoryChange}
+                                        options={offsetCategoryOptions}
+                                        placeholder="Select ATM withdrawals category..."
+                                        styles={menuStyles}
+                                    />
                                 </div>
-
                             </div>
                         )}
                     </div>
@@ -907,17 +919,42 @@ const Home: React.FC = () => {
                         )}
 
                         <p></p>
-                            <TinyField
-                                id='notes'
-                                placeholder='(Optional) Add note'
-                                ref={notesRef}
-                                value={notes}
-                                onChange={(e: React.FormEvent<HTMLInputElement>) =>
-                                    setNotes(e.currentTarget.value)
-                                }
-                                onKeyDown={handleNotesKeyDown}
-                                type="text"
-                            />
+                        <TinyField
+                            id='notes'
+                            placeholder='(Optional) Add note'
+                            ref={notesRef}
+                            value={notes}
+                            onChange={(e: React.FormEvent<HTMLInputElement>) =>
+                                setNotes(e.currentTarget.value)
+                            }
+                            onKeyDown={handleNotesKeyDown}
+                            type="text"
+                        />
+                        <p></p>
+                        <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+                            <label htmlFor="enableOffset" style={{ marginRight: '10px' }}>Add Offset {offsetCategory? offsetCategory.name : ''} Transaction: </label>
+                            <Popover placement="top-start">
+                                <PopoverTrigger>
+                                    <div>
+                                        <span style={{ display: "inline-block", verticalAlign: "middle", marginRight: "5px" }}>
+                                            <Switch
+                                                onChange={handleOffsetSwitchChange}
+                                                checked={enableOffset}
+                                                disabled={!offsetCategory}
+                                                id="enableOffset"
+                                            />
+                                        </span>
+                                    </div>
+                                </PopoverTrigger>
+                                {!offsetCategory && (
+                                    <PopoverContent>
+                                        <HelpTooltip>
+                                            To enable offset transactions, you must select an offset category under settings first.
+                                        </HelpTooltip>
+                                    </PopoverContent>
+                                )}
+                            </Popover>
+                        </div>
                         <Button onClick={() => insertTransaction()}>
                             Add Transaction
                         </Button>
