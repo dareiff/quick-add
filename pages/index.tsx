@@ -65,7 +65,7 @@ const CategoryHolder = styled.div`
 
 interface CategoryI {
     selected: boolean;
-    dimmed: boolean;
+    $dimmed: boolean;
     value?: number;
 }
 const CategorySelector = styled.div<CategoryI>`
@@ -77,7 +77,7 @@ const CategorySelector = styled.div<CategoryI>`
     background-color: ${(props: CategoryI) =>
         props.selected ? '#006bb3' : '#e6e6e6'};
     border-radius: 8px;
-    color: ${(props: CategoryI) => (props.dimmed ? 'black' : 'white')};
+    color: ${(props: CategoryI) => (props.$dimmed ? 'black' : 'white')};
 `;
 
 const InputWrapper = styled.div`
@@ -881,7 +881,7 @@ const Home: React.FC = () => {
                                                 category !== null &&
                                                 category.id === catone.category.id
                                             }
-                                            dimmed={
+                                            $dimmed={
                                                 category === null || (category !== null &&
                                                 category.id !== catone.category.id)
                                             }
