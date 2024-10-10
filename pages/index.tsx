@@ -473,7 +473,12 @@ const Home: React.FC = () => {
 
         const storedEnableOffset = localStorage.getItem('enableOffset');
         if (storedEnableOffset) {
-            setEnableOffset(JSON.parse(storedEnableOffset));
+            if (storedOffsetCategory !== null || selectedCategory.length > 0) {
+                setEnableOffset(JSON.parse(storedEnableOffset));
+            } else {
+                // Keep switch off if there is no category set.
+                setEnableOffset(false);
+            }
         }
     }, []);
 
