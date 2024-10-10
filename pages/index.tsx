@@ -784,7 +784,7 @@ const Home: React.FC = () => {
                                                 For every transaction, automatically create a second offset transaction
                                                 with the opposite amount. This would normally be the category
                                                 you use for ATM/cash withdrawals, so that this offset transaction
-                                                helps balance such category. This is almost equivalnt to Mint's
+                                                helps balance such category. This is almost equivalnt to Mint&apos;s
                                                 &quot;Deduct from last Cash & ATM transaction&quot; feature.
                                                 <p></p>Leave empty to disable.
                                             </HelpTooltip>
