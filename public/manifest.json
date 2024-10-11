@@ -3,7 +3,7 @@
     "short_name": "Milk Money",
     "icons": [
         {
-            "src": "purse-android-192b.png",
+            "src": "purse-android-192.png",
             "sizes": "192x192",
             "type": "image/png"
         },
