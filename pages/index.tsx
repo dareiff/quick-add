@@ -1008,7 +1008,7 @@ const Home: React.FC = () => {
                         <a href='https://lunchmoney.app/?refer=eg3r4y7t'>
                             Lunch Money
                         </a>
-                        . It's all stored right on your phone once you add your api
+                        . It&apos;s all stored right on your phone once you add your api
                         key, and it “just works.”
                     </p>
                 </Footer>
