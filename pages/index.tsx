@@ -1008,7 +1008,7 @@ const Home: React.FC = () => {
                         a fun club project
                     </a>
                     <p>
-                        A really basic app that sends a cash transaction (probably)
+                        A really basic app (<a href='https://github.com/dareiff/quick-add'>source</a>) that sends a cash transaction
                         to{' '}
                         <a href='https://lunchmoney.app/?refer=eg3r4y7t'>
                             Lunch Money
