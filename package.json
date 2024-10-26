@@ -9,13 +9,16 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "@nextui-org/popover": "^2.1.29",
         "dayjs": "^1.11.12",
         "next": "^14.2.14",
         "next-plausible": "^3.12.1",
+        "next-pwa": "^5.6.0",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
         "react-is": "^18.3.1",
         "react-select": "^5.8.1",
+        "react-switch": "^7.0.0",
         "styled-components": "^6.1.12"
     },
     "devDependencies": {

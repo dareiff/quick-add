@@ -4,7 +4,6 @@ Milk Money is an easy way to add cash transaction to lunchmoney via your develop
 
 There's some stuff to do:
 
-1. Make this a PWA
 1. Turn on strict type checking
 1. Audit for best PWA practices
 1. Color audit
