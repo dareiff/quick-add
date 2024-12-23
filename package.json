@@ -11,7 +11,7 @@
     "dependencies": {
         "@nextui-org/popover": "^2.1.29",
         "dayjs": "^1.11.12",
-        "next": "^14.2.14",
+        "next": "^14.2.21",
         "next-plausible": "^3.12.1",
         "next-pwa": "^5.6.0",
         "react": "^18.3.1",
