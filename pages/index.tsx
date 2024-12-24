@@ -1,272 +1,39 @@
-import Head from 'next/head';
 import React, { createRef, useEffect, useState, useRef, KeyboardEventHandler } from 'react';
+import Head from 'next/head';
 import dayjs from 'dayjs';
-import styled from 'styled-components';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import Switch from "react-switch";
-import {Popover, PopoverTrigger, PopoverContent} from "@nextui-org/popover";
+import { Popover, PopoverTrigger, PopoverContent } from "@nextui-org/popover";
+import { StylesConfig } from 'react-select';
 
+import {
+    MoneyAdder,
+    Gear,
+    CategoryHeaderGroup,
+    HeaderContainer,
+    ItemHolder,
+    ItemSelector,
+    InputWrapper,
+    TheSingleStepper,
+    ValueChange,
+    AppContainer,
+    MainContainer,
+    Button,
+    TinyField,
+    TinyButton,
+    NumberInput,
+    DollarSign,
+    SuccessHolder,
+    WarningHolder,
+    SelectContainer,
+    StyledSelect,
+    Footer,
+    HelpIcon,
+    HelpTooltip
+} from '../styles/styledComponents';
 
-const MoneyAdder = styled.div`
-    display: flex;
-    flex-direction: row;
-    flex-flow: row wrap;
-    margin: 10px 0 30px 0;
-    justify-content: space-between;
-    gap: 15px;
-
-    > button {
-        display: inline-flex;
-        margin: 0 5px 0 0;
-        cursor: pointer;
-        padding: 13px 20px;
-        color: #000;
-        background-color: #fff;
-        border: 1px solid #404040;
-    }
-`;
-
-const Gear = styled.div`
-    font-size: 22px;
-    cursor: pointer;
-    justify-self: flex-end;
-`;
-
-const CategoryHeaderGroup = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-
-    h3 {
-        margin: 0;
-        display: inline;
-    }
-`;
-
-const HeaderContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-
-    h1 {
-        margin: 5px 20px;
-        font-size: 30px;
-    }
-`;
-
-const CategoryHolder = styled.div`
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    margin: 20px 0;
-`;
-
-interface CategoryI {
-    selected: boolean;
-    $dimmed: boolean;
-    value?: number;
-}
-const CategorySelector = styled.div<CategoryI>`
-    display: inline-block;
-    padding: 12px 12px;
-    margin: 5px;
-    font-size: 17px;
-    cursor: pointer;
-    background-color: ${(props: CategoryI) =>
-        props.selected ? '#006bb3' : '#e6e6e6'};
-    border-radius: 8px;
-    color: ${(props: CategoryI) => (props.$dimmed ? 'black' : 'white')};
-`;
-
-const InputWrapper = styled.div`
-    width: 100%;
-    border: 1px solid #404040;
-    font-size: 22px;
-    border-radius: 5px;
-    padding: 5px 10px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    height: 100px;
-`;
-
-const TheSingleStepper = styled.div`
-    width: 200px;
-    display: flex;
-    flex-direction: column;
-`;
-
-const ValueChange = styled.div`
-    width: 110px;
-    height: 25px;
-    color: #404040;
-    text-align: center;
-    border-radius: 8px;
-    font-size: 17px;
-    padding: 3px 3px;
-    align-items: center;
-    cursor: pointer;
-`;
-
-const AppContainer = styled.div`
-    min-height: 100vh;
-    padding: 0 0.5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-`;
-
-const MainContainer = styled.div`
-    padding: 10px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    width: 100%;
-    max-width: 400px;
-
-    label {
-        text-align: left;
-        margin: 10px 0;
-        font-weight: 600;
-        width: 100%;
-        font-size: 16px;
-    }
-`;
-
-const Button = styled.button`
-    width: 100%;
-    background-color: #006bb3;
-    color: #fff;
-    padding: 10px 30px;
-    margin: 20px auto;
-    border: none;
-    border-radius: 10px;
-    font-size: 20px;
-    font-weight: 700;
-`;
-
-const TinyField = styled.input`
-    padding: 12px 12px;
-    margin: auto;
-    display: inline;
-    color: #404040;
-    font-size: 20px;
-    border-radius: 5px;
-    border: 1px solid #404040;
-    width: 100%;
-`;
-
-const TinyButton = styled.button`
-    width: 100%;
-    background-color: #006bb3;
-    color: #fff;
-    padding: 10px 30px;
-    border: none;
-    border-radius: 10px;
-    font-size: 18px;
-    font-weight: 700;
-`;
-
-const NumberInput = styled.input`
-    font-size: 40px;
-    border: none;
-    width: 50%;
-    margin: 0 0 0 10px;
-    display: inline-block;
-
-    &:focus {
-        outline: none;
-    }
-`;
-
-const DollarSign = styled.span`
-    font-size: 22px;
-    margin: 0 0 0 30px;
-`;
-
-const SuccessHolder = styled.div`
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-
-    p {
-        font-size: 17px;
-    }
-`;
-
-const WarningHolder = styled.div`
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-    font-size: 17px;
-    color: red;
-`;
-
-const SelectContainer = styled.div`
-    display: flex;
-    align-items: center;
-    width: 100%;
-    margin: 10px 0;
-`;
-
-const StyledSelect = styled.select`
-    width: 100%;
-    padding: 8px;
-    font-size: 20px;
-    border: 1px solid #404040;
-    border-radius: 5px;
-    color: '#404040',
-    background-color: '#fff',
-`;
-
-const Footer = styled.div`
-    width: 100%;
-    border-top: 1px solid #eaeaea;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    padding: 10px 0;
-    align-items: center;
-
-    p {
-        font-size: 12px;
-    }
-`;
-
-const HelpIcon = styled.span`
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 1px solid #ccc;
-    text-align: center;
-    line-height: 20px;
-    cursor: pointer;
-    margin-left: 5px; /* Adjust as needed */
-
-    &:hover {
-        background-color: #eee;
-    }
-`;
-
-const HelpTooltip = styled.div`
-    font-size: 16px;
-    background-color: #99cbff;
-    border: 1px solid #ccc;
-    padding: 8px;
-    border-radius: 4px;
-    max-width: 300px;
-`;
+import Settings from '../components/Settings';
 
 interface LunchMoneyCategory {
     id: number;
@@ -282,22 +49,35 @@ interface LunchMoneyCategory {
     archived: boolean;
 }
 
+interface LunchMoneyAsset {
+    id: number;
+    type_name: string;
+    subtype_name: string | null;
+    display_name: string;
+    balance: string;
+    balance_as_of: string;
+    currency: string;
+    institution_name: string | null;
+    exclude_transactions: boolean;
+    created_at: string;
+}
+
 const components = {
     DropdownIndicator: null,
 };
 
-interface Option {
+interface Option<T> {
     readonly label: string;
-    readonly value: string;
+    readonly value: T;
 }
 
-const createOption = (label: string) => ({
+const createOption = (label: string): Option<string> => ({
     label,
     value: label,
 });
 
 const Home: React.FC = () => {
-    const menuStyles = {
+    const menuStyles: StylesConfig<any, false> = {
         control: (provided, state) => ({
             ...provided,
             padding: '6px 6px',
@@ -326,8 +106,6 @@ const Home: React.FC = () => {
     const [recentCount, setRecentCount] = useState<number>(3);
     const [showRecent, setShowRecent] = useState(true);
     const [category, setCategory] = useState<LunchMoneyCategory | null>(null);
-    const [enableOffset, setEnableOffset] = useState<boolean>(false);
-    const [offsetCategory, setOffsetCategory] = useState<LunchMoneyCategory | null>(null);
     const [error, setError] = useState<string>('');
     const [settings, showSettings] = useState<boolean>(false);
     const [negative, setNegative] = useState<boolean>(true);
@@ -340,10 +118,31 @@ const Home: React.FC = () => {
     const recentCountRef = createRef<HTMLInputElement>();
 
     const [inputValue, setInputValue] = useState('');
-    const [tags, setTags] = useState<readonly Option[]>([]);
+    const [tags, setTags] = useState<readonly Option<string>[]>([]);
     const [showTooltip, setShowTooltip] = useState(false);
 
     const [selectedCategory, setSelectedCategory] = useState<any>(null);
+
+    const [assets, setAssets] = useState<Array<LunchMoneyAsset> | null>(null);
+    const [chosenAsset, setChosenAsset] = useState<LunchMoneyAsset | null>(null);
+    const [recentAssets, setRecentAssets] = useState<{
+        asset: LunchMoneyAsset;
+        count: number
+    }[]>([]);
+    const [transactionCleared, setTransactionCleared] = useState<boolean>(false);
+
+    useEffect(() => {
+        // Retrieve the transactionCleared state from localStorage
+        const storedTransactionCleared = localStorage.getItem('transactionCleared');
+        if (storedTransactionCleared) {
+            setTransactionCleared(JSON.parse(storedTransactionCleared));
+        }
+    }, []);
+
+    useEffect(() => {
+        // Save the transactionCleared state to localStorage whenever it changes
+        localStorage.setItem('transactionCleared', JSON.stringify(transactionCleared));
+    }, [transactionCleared]);
 
     const categoryOptions = cats?.filter(cat => !cat.is_group)
                                  .filter(cat => !cat.archived)
@@ -355,26 +154,32 @@ const Home: React.FC = () => {
                                      label: cat.name,
                                  })) || [];
 
-    const offsetCategoryOptions = cats?.filter(cat => !cat.archived)
-                                 .map((cat) => ({
-                                     value: cat,
-                                     label: cat.name,
-                                 })) || [];
+    const assetOptions: Option<LunchMoneyAsset>[] = assets?.map((asset) => ({
+        value: asset,
+        label: asset.display_name,
+    })) || [];
 
-    const handleCategoryChange = (selectedOption: any) => {
-        setSelectedCategory(selectedOption);
-        setChosenCategory(selectedOption.value);
-        updateRecentCategories(selectedOption.value);
-        setNoCategoryWarning(false);
+    const handleCategoryChange = (selectedOption: Option<LunchMoneyCategory> | null) => {
+        if (selectedOption) {
+            setSelectedCategory(selectedOption);
+            setChosenCategory(selectedOption.value);
+            updateRecentCategories(selectedOption.value);
+            setNoCategoryWarning(false);
+        }
+    };
+
+    const handleAssetChange = (selectedOption: Option<LunchMoneyAsset> | null) => {
+        if (selectedOption) {
+            setChosenAsset(selectedOption.value);
+            updateRecentAssets(selectedOption.value);
+            if (amountRef.current) {
+                amountRef.current.focus();
+            }
+        }
     };
 
     const setChosenCategory = (newCategory: LunchMoneyCategory) => {
         setCategory(newCategory);
-
-        // Set focus to the notes input after setting the category.
-        if (notesRef.current) {
-            notesRef.current.focus();
-        }
     };
 
     const downloadCats = async (at: string) => {
@@ -402,7 +207,29 @@ const Home: React.FC = () => {
         setError('');
     };
 
-    const handleKeyDown: KeyboardEventHandler = (event) => {
+    const downloadAssets = async (at: string) => {
+        const result = await fetch('https://dev.lunchmoney.app/v1/assets', {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + at,
+            },
+            method: 'GET',
+        });
+
+        if (!result.ok) {
+            const error = 'Something went wrong downloading assets. You might check your network connection, or your API key';
+            console.error(error);
+            setError(error);
+            setAssets(null);
+            return;
+        }
+
+        const data = await result.json();
+        setAssets(data.assets);
+        setError('');
+    };
+
+    const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = (event) => {
         if (!inputValue) return;
 
         switch (event.key) {
@@ -466,21 +293,11 @@ const Home: React.FC = () => {
             setTags(JSON.parse(storedTags));
         }
 
-        const storedOffsetCategory = localStorage.getItem('offsetCategory');
-        if (storedOffsetCategory) {
-            setOffsetCategory(JSON.parse(storedOffsetCategory));
+        const storedRecentAssets = localStorage.getItem('recentAssets');
+        if (storedRecentAssets) {
+            setRecentAssets(JSON.parse(storedRecentAssets));
         }
 
-        const storedEnableOffset = localStorage.getItem('enableOffset');
-        if (storedEnableOffset) {
-            if (storedOffsetCategory !== null ||
-                (selectedCategory !== null && selectedCategory.length > 0)) {
-                setEnableOffset(JSON.parse(storedEnableOffset));
-            } else {
-                // Keep switch off if there is no category set.
-                setEnableOffset(false);
-            }
-        }
     }, []);
 
     useEffect(() => {
@@ -500,6 +317,7 @@ const Home: React.FC = () => {
             return;
         }
         downloadCats(accessTokenInState);
+        downloadAssets(accessTokenInState);
     }, [accessTokenInState]);
 
     const addAccessTokenFromHTMLElement = async () => {
@@ -527,6 +345,10 @@ const Home: React.FC = () => {
         localStorage.setItem('recentCount', recentCount.toString());
     }, [recentCount]);
 
+    useEffect(() => {
+        localStorage.setItem('recentAssets', JSON.stringify(recentAssets));
+    }, [recentAssets]);
+
     const updateRecentCategories = (newCategory: LunchMoneyCategory) => {
         let updatedRecent = [...recentCategories];
         const existingCategoryIndex = updatedRecent.findIndex(item => item.category.id === newCategory.id);
@@ -548,42 +370,38 @@ const Home: React.FC = () => {
         }
     };
 
+    const updateRecentAssets = (newAsset: LunchMoneyAsset) => {
+        let updatedRecent = [...recentAssets];
+        const existingAssetIndex = updatedRecent.findIndex(item => item.asset.id === newAsset.id);
+
+        if (existingAssetIndex !== -1) {
+            updatedRecent[existingAssetIndex].count++;
+        } else {
+            updatedRecent.unshift({ asset: newAsset, count: 1 });
+        }
+
+        updatedRecent.sort((a, b) => b.count - a.count);
+
+        if (JSON.stringify(updatedRecent) !== JSON.stringify(recentAssets)) {
+            setRecentAssets(updatedRecent);
+            localStorage.setItem('recentAssets', JSON.stringify(updatedRecent));
+        }
+    };
+
     const handleRecentCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = parseInt(e.target.value, 10);
         setRecentCount(value);
     };
 
-    const handleNotesKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleNotesKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
         if (e.key === 'Enter') {  // Check if Enter key is pressed
             e.preventDefault();  // Prevent default form submission behavior (important!)
             insertTransaction(); // Call your transaction function
         }
     };
 
-    useEffect(() => {
-        if (offsetCategory) {
-            localStorage.setItem('offsetCategory', JSON.stringify(offsetCategory));
-        } else {
-            localStorage.removeItem('offsetCategory');
-        }
-    }, [offsetCategory]);
-
-    useEffect(() => {
-        localStorage.setItem('enableOffset', JSON.stringify(enableOffset));
-    }, [enableOffset]);
-
-    const handleOffsetCategoryChange = (selectedOption: any) => {
-        if (selectedOption) {
-            setOffsetCategory(selectedOption.value);
-            setEnableOffset(true);
-        } else{
-            setOffsetCategory(null);
-            setEnableOffset(false);
-        }
-    };
-
-    const handleOffsetSwitchChange = (checked: boolean) => {
-        setEnableOffset(checked);
+    const handleTransactionClearedChange = (checked: boolean) => {
+        setTransactionCleared(checked);
     };
 
     const insertTransaction = async () => {
@@ -610,28 +428,13 @@ const Home: React.FC = () => {
         const transactionsToInsert = [{
             amount: negative ? `-${amount}` : amount,
             category_id: category.id,
+            asset_id: chosenAsset?.id,
             date: date,
             payee: payee,
             notes: notes,
             tags: tagValues,
+            status: transactionCleared ? "cleared" : "uncleared",
         }];
-
-        // Only add the offset transaction if it's an expense (negative amount)
-        if (enableOffset && offsetCategory) {
-            const transactionType = negative ? "Expense" : "Income";
-            let offsetNotes = `Offset for ${transactionType}: ${category.name}`;
-            if (notes) {
-                offsetNotes += ` (${notes})`;
-            }
-            transactionsToInsert.push({
-                amount: negative ? amount : `-${amount}`,  // Opposite amount
-                category_id: offsetCategory.id,
-                date: date,
-                payee: payee,
-                notes: offsetNotes,
-                tags: tagValues,
-            });
-        }
 
         var now = dayjs();
         await fetch('https://dev.lunchmoney.app/v1/transactions', {
@@ -658,6 +461,7 @@ const Home: React.FC = () => {
                 setChosenCategory(null);
                 setSelectedCategory(null);
                 setCategory(null);
+                setChosenAsset(null);
                 timeoutId = setTimeout(() => {
                     setSuccess(false);
                 }, 3000);
@@ -692,138 +496,28 @@ const Home: React.FC = () => {
                 </HeaderContainer>
 
                 {(!authenticated || settings) && (
-                    <div style={{ width: '100%', margin: '20px 0' }}>
-
-                        {accessTokenInState === null || accessTokenInState.length === 0 ? (
-                            <div>
-                                <h3>Welcome!</h3>
-                                <p>This app lets you quickly add manual transactions to LunchMoney on the go.</p>
-                                <p>To get started, add your access token (only stored locally on your device.)</p>
-                                <TinyField
-                                    placeholder='LunchMoney Access Token'
-                                    type='text'
-                                    ref={accessRef}
-                                />
-                                <TinyButton
-                                    onClick={() =>
-                                        addAccessTokenFromHTMLElement()
-                                    }
-                                >
-                                    Add
-                                </TinyButton>
-                            </div>
-                        ) : (
-                            <div>
-                                <h3>Settings:</h3>
-                                <div>
-                                    <TinyButton
-                                        onClick={() => {
-                                            localStorage.removeItem('access_token');
-                                            setAccessToken('');
-                                            setAuthenticated(false);
-                                        }}
-                                    >
-                                        Delete Access Token (...{accessTokenInState.slice(-6)})
-                                    </TinyButton>
-                                </div>
-                                <div>  {/* New toggle for quick buttons */}
-                                    <p></p><TinyButton onClick={() => {
-                                        setShowQuickButtons(!showQuickButtons);
-                                        showSettings(false);
-                                    }}>
-                                        {showQuickButtons ? 'Hide Quick Buttons' : 'Show Quick Buttons'}
-                                    </TinyButton>
-                                </div>
-                                {recentCategories.length !== 0 && (
-                                    <div>
-                                        <p></p><TinyButton
-                                            onClick={() => {
-                                                localStorage.removeItem('recentCategories');
-                                                setRecentCategories([]);
-                                                showSettings(false);
-                                            }}
-                                        >
-                                            Clear Recent Categories
-                                        </TinyButton>
-                                    </div>
-                                )}
-                                <div>
-                                    <p></p><label htmlFor="recentCount">Recent categories to show:</label>
-                                    <SelectContainer>
-                                        <StyledSelect
-                                            id="recentCount"
-                                            value={recentCount}
-                                            onChange={handleRecentCountChange}
-                                        >
-                                            {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
-                                                <option key={num} value={num}>
-                                                    {num}
-                                                </option>
-                                            ))}
-                                        </StyledSelect>
-                                    </SelectContainer>
-                                </div>
-                                <div>
-                                    <p></p><label htmlFor="tags">Tag all transactions as:</label>
-                                    <Popover placement="top-start">
-                                        <PopoverTrigger>
-                                            <HelpIcon>?</HelpIcon>
-                                        </PopoverTrigger>
-                                        <PopoverContent>
-                                            <HelpTooltip>
-                                                Tag(s) that will be added to all transactions (e.g., &quot;cash&quot;,
-                                                &quot; manual-cash&quot;, &quot;milk-money&quot;, etc.) to make it easier
-                                                to track transactions entered from this tool.
-                                                <p></p>Leave empty to disable.
-                                            </HelpTooltip>
-                                        </PopoverContent>
-                                    </Popover>
-                                    <CreatableSelect
-                                        id="tags"
-                                        components={components}
-                                        inputValue={inputValue}
-                                        isClearable
-                                        isMulti
-                                        menuIsOpen={false}
-                                        onChange={(newValue) => {setTags(newValue)}}
-                                        onInputChange={(newValue: any) => setInputValue(newValue as string)}
-                                        onKeyDown={handleKeyDown}
-                                        onBlur={handleBlur}
-                                        value={tags}
-                                        styles={menuStyles}
-                                        placeholder= "Type to set tag(s)..."
-                                    />
-                                </div>
-                                <div>
-                                    <p></p><label htmlFor="offsetCategory">Offset transaction category:</label>
-                                    <Popover placement="top-start">
-                                        <PopoverTrigger>
-                                            <HelpIcon>?</HelpIcon>
-                                        </PopoverTrigger>
-                                        <PopoverContent>
-                                            <HelpTooltip>
-                                                For every transaction, automatically create a second offset transaction
-                                                with the opposite amount. This would normally be the category
-                                                you use for ATM/cash withdrawals, so that this offset transaction
-                                                helps balance such category. This is almost equivalnt to Mint&apos;s
-                                                &quot;Deduct from last Cash & ATM transaction&quot; feature.
-                                                <p></p>Leave empty to disable.
-                                            </HelpTooltip>
-                                        </PopoverContent>
-                                    </Popover>
-                                    <Select
-                                        id="offsetCategory"
-                                        isClearable
-                                        value={offsetCategory ? { value: offsetCategory, label: offsetCategory.name } : null}
-                                        onChange={handleOffsetCategoryChange}
-                                        options={offsetCategoryOptions}
-                                        placeholder="Select Cash/ATM category..."
-                                        styles={menuStyles}
-                                    />
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                    <Settings
+                        accessTokenInState={accessTokenInState}
+                        setAccessToken={setAccessToken}
+                        setAuthenticated={setAuthenticated}
+                        showSettings={showSettings}
+                        showQuickButtons={showQuickButtons}
+                        setShowQuickButtons={setShowQuickButtons}
+                        recentCategories={recentCategories}
+                        setRecentCategories={setRecentCategories}
+                        recentAssets={recentAssets}
+                        setRecentAssets={setRecentAssets}
+                        recentCount={recentCount}
+                        setRecentCount={setRecentCount}
+                        tags={tags}
+                        setTags={setTags}
+                        inputValue={inputValue}
+                        setInputValue={setInputValue}
+                        handleKeyDown={handleKeyDown}
+                        handleBlur={handleBlur}
+                        addAccessTokenFromHTMLElement={addAccessTokenFromHTMLElement}
+                        accessRef={accessRef}
+                    />
                 )}
 
                 {authenticated && !settings && (
@@ -831,6 +525,34 @@ const Home: React.FC = () => {
                         {error.length > 0 &&
                             accessTokenInState !== null && accessTokenInState.length !== 0 && <p><WarningHolder>{error}</WarningHolder></p>}
                         <p></p>
+
+                        {assets !== null && assets.length > 0 && (
+                            <>
+                                <ItemHolder>
+                                    {assets.map((assetone, i) => (
+                                        <ItemSelector
+                                            key={i}
+                                            value={assetone.id}
+                                            selected={
+                                                chosenAsset !== null &&
+                                                chosenAsset.id === assetone.id
+                                            }
+                                            $dimmed={
+                                                chosenAsset === null || (chosenAsset !== null &&
+                                                chosenAsset.id !== assetone.id)
+                                            }
+                                            onClick={() => {
+                                                setChosenAsset(assetone);
+                                                updateRecentAssets(assetone);
+                                            }}
+                                        >
+                                            {assetone.display_name}
+                                        </ItemSelector>
+                                    ))}
+                                </ItemHolder>
+                            </>
+                        )}
+
                         <InputWrapper>
                             <DollarSign>$</DollarSign>
                             <NumberInput
@@ -905,9 +627,9 @@ const Home: React.FC = () => {
 
                         {cats !== null && (
                             <>
-                                <CategoryHolder>
+                                <ItemHolder>
                                     {recentCategories.map((catone, i) => (
-                                        <CategorySelector
+                                        <ItemSelector
                                             key={i}
                                             value={catone.category.id}
                                             selected={
@@ -925,9 +647,9 @@ const Home: React.FC = () => {
                                             }}
                                         >
                                             {catone.category.name}
-                                        </CategorySelector>
+                                        </ItemSelector>
                                     ))}
-                                </CategoryHolder>
+                                </ItemHolder>
 
                                 <Select
                                     value={selectedCategory}
@@ -954,28 +676,12 @@ const Home: React.FC = () => {
                         />
                         <p></p>
                         <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-                            <label htmlFor="enableOffset" style={{ marginRight: '10px' }}>Add Offset {offsetCategory? offsetCategory.name : ''} Transaction: </label>
-                            <Popover placement="top-start">
-                                <PopoverTrigger>
-                                    <div>
-                                        <span style={{ display: "inline-block", verticalAlign: "middle", marginRight: "5px" }}>
-                                            <Switch
-                                                onChange={handleOffsetSwitchChange}
-                                                checked={enableOffset}
-                                                disabled={!offsetCategory}
-                                                id="enableOffset"
-                                            />
-                                        </span>
-                                    </div>
-                                </PopoverTrigger>
-                                {!offsetCategory && (
-                                    <PopoverContent>
-                                        <HelpTooltip>
-                                            To enable offset transactions, you must select an offset category under settings first.
-                                        </HelpTooltip>
-                                    </PopoverContent>
-                                )}
-                            </Popover>
+                            <label htmlFor="transactionCleared" style={{ marginRight: '10px' }}>Transaction Cleared: </label>
+                            <Switch
+                                onChange={handleTransactionClearedChange}
+                                checked={transactionCleared}
+                                id="transactionCleared"
+                            />
                         </div>
                         <Button onClick={() => insertTransaction()}>
                             Add Transaction
