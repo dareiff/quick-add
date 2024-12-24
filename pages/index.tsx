@@ -30,6 +30,7 @@ import {
     HelpIcon,
     HelpTooltip
 } from '../styles/styledComponents';
+import { StylesConfig } from 'react-select';
 
 interface LunchMoneyCategory {
     id: number;
@@ -73,7 +74,7 @@ const createOption = (label: string): Option<string> => ({
 });
 
 const Home: React.FC = () => {
-    const menuStyles = {
+    const menuStyles: StylesConfig<any, false> = {
         control: (provided, state) => ({
             ...provided,
             padding: '6px 6px',
@@ -155,11 +156,13 @@ const Home: React.FC = () => {
         label: asset.display_name,
     })) || [];
 
-    const handleCategoryChange = (selectedOption: any) => {
-        setSelectedCategory(selectedOption);
-        setChosenCategory(selectedOption.value);
-        updateRecentCategories(selectedOption.value);
-        setNoCategoryWarning(false);
+    const handleCategoryChange = (selectedOption: Option<LunchMoneyCategory> | null) => {
+        if (selectedOption) {
+            setSelectedCategory(selectedOption);
+            setChosenCategory(selectedOption.value);
+            updateRecentCategories(selectedOption.value);
+            setNoCategoryWarning(false);
+        }
     };
 
     const handleAssetChange = (selectedOption: Option<LunchMoneyAsset> | null) => {
@@ -223,7 +226,7 @@ const Home: React.FC = () => {
         setError('');
     };
 
-    const handleKeyDown: KeyboardEventHandler = (event) => {
+    const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = (event) => {
         if (!inputValue) return;
 
         switch (event.key) {
@@ -387,7 +390,7 @@ const Home: React.FC = () => {
         setRecentCount(value);
     };
 
-    const handleNotesKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleNotesKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
         if (e.key === 'Enter') {  // Check if Enter key is pressed
             e.preventDefault();  // Prevent default form submission behavior (important!)
             insertTransaction(); // Call your transaction function
