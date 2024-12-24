@@ -304,7 +304,7 @@ interface Option<T> {
     readonly value: T;
 }
 
-const createOption = (label: string) => ({
+const createOption = (label: string): Option<string> => ({
     label,
     value: label,
 });
@@ -351,7 +351,7 @@ const Home: React.FC = () => {
     const recentCountRef = createRef<HTMLInputElement>();
 
     const [inputValue, setInputValue] = useState('');
-    const [tags, setTags] = useState<readonly Option[]>([]);
+    const [tags, setTags] = useState<readonly Option<string>[]>([]);
     const [showTooltip, setShowTooltip] = useState(false);
 
     const [selectedCategory, setSelectedCategory] = useState<any>(null);
