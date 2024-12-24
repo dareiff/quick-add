@@ -286,7 +286,7 @@ interface LunchMoneyAsset {
     id: number;
     type_name: string;
     subtype_name: string | null;
-    name: string;
+    display_name: string;
     balance: string;
     balance_as_of: string;
     currency: string;
@@ -389,7 +389,7 @@ const Home: React.FC = () => {
 
     const assetOptions: Option<LunchMoneyAsset>[] = assets?.map((asset) => ({
         value: asset,
-        label: asset.name,
+        label: asset.display_name,
     })) || [];
 
     const handleCategoryChange = (selectedOption: any) => {
@@ -885,7 +885,7 @@ const Home: React.FC = () => {
                                                 updateRecentAssets(assetone);
                                             }}
                                         >
-                                            {assetone.name}
+                                            {assetone.display_name}
                                         </CategorySelector>
                                     ))}
                                 </CategoryHolder>
