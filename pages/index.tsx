@@ -299,9 +299,9 @@ const components = {
     DropdownIndicator: null,
 };
 
-interface Option {
+interface Option<T> {
     readonly label: string;
-    readonly value: string;
+    readonly value: T;
 }
 
 const createOption = (label: string) => ({
@@ -388,7 +388,7 @@ const Home: React.FC = () => {
                                      label: cat.name,
                                  })) || [];
 
-    const assetOptions = assets?.map((asset) => ({
+    const assetOptions: Option<LunchMoneyAsset>[] = assets?.map((asset) => ({
         value: asset,
         label: asset.name,
     })) || [];
@@ -400,10 +400,12 @@ const Home: React.FC = () => {
         setNoCategoryWarning(false);
     };
 
-    const handleAssetChange = (selectedOption: any) => {
-        setSelectedAsset(selectedOption.value);
-        setChosenAsset(selectedOption.value);
-        updateRecentAssets(selectedOption.value);
+    const handleAssetChange = (selectedOption: Option<LunchMoneyAsset> | null) => {
+        if (selectedOption) {
+            setSelectedAsset(selectedOption.value);
+            setChosenAsset(selectedOption.value);
+            updateRecentAssets(selectedOption.value);
+        }
     };
 
     const setChosenCategory = (newCategory: LunchMoneyCategory) => {
@@ -987,7 +989,7 @@ const Home: React.FC = () => {
                                 </CategoryHolder>
 
                                 <Select
-                                    value={selectedAsset}
+                                    value={selectedAsset ? { value: selectedAsset, label: selectedAsset.name } : null}
                                     onChange={handleAssetChange}
                                     options={assetOptions}
                                     isSearchable={false}
