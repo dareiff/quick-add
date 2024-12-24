@@ -56,7 +56,7 @@ const HeaderContainer = styled.div`
     }
 `;
 
-const CategoryHolder = styled.div`
+const ItemHolder = styled.div`
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -64,21 +64,21 @@ const CategoryHolder = styled.div`
     margin: 20px 0;
 `;
 
-interface CategoryI {
+interface ItemI {
     selected: boolean;
     $dimmed: boolean;
     value?: number;
 }
-const CategorySelector = styled.div<CategoryI>`
+const ItemSelector = styled.div<ItemI>`
     display: inline-block;
     padding: 12px 12px;
     margin: 5px;
     font-size: 17px;
     cursor: pointer;
-    background-color: ${(props: CategoryI) =>
+    background-color: ${(props: ItemI) =>
         props.selected ? '#006bb3' : '#e6e6e6'};
     border-radius: 8px;
-    color: ${(props: CategoryI) => (props.$dimmed ? 'black' : 'white')};
+    color: ${(props: ItemI) => (props.$dimmed ? 'black' : 'white')};
 `;
 
 const InputWrapper = styled.div`
@@ -855,9 +855,9 @@ const Home: React.FC = () => {
 
                         {assets !== null && assets.length > 0 && (
                             <>
-                                <CategoryHolder>
+                                <ItemHolder>
                                     {assets.map((assetone, i) => (
-                                        <CategorySelector
+                                        <ItemSelector
                                             key={i}
                                             value={assetone.id}
                                             selected={
@@ -874,9 +874,9 @@ const Home: React.FC = () => {
                                             }}
                                         >
                                             {assetone.display_name}
-                                        </CategorySelector>
+                                        </ItemSelector>
                                     ))}
-                                </CategoryHolder>
+                                </ItemHolder>
                             </>
                         )}
 
@@ -954,9 +954,9 @@ const Home: React.FC = () => {
 
                         {cats !== null && (
                             <>
-                                <CategoryHolder>
+                                <ItemHolder>
                                     {recentCategories.map((catone, i) => (
-                                        <CategorySelector
+                                        <ItemSelector
                                             key={i}
                                             value={catone.category.id}
                                             selected={
@@ -974,9 +974,9 @@ const Home: React.FC = () => {
                                             }}
                                         >
                                             {catone.category.name}
-                                        </CategorySelector>
+                                        </ItemSelector>
                                     ))}
-                                </CategoryHolder>
+                                </ItemHolder>
 
                                 <Select
                                     value={selectedCategory}
