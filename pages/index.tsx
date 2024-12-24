@@ -1,10 +1,12 @@
-import Head from 'next/head';
 import React, { createRef, useEffect, useState, useRef, KeyboardEventHandler } from 'react';
+import Head from 'next/head';
 import dayjs from 'dayjs';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import Switch from "react-switch";
-import {Popover, PopoverTrigger, PopoverContent} from "@nextui-org/popover";
+import { Popover, PopoverTrigger, PopoverContent } from "@nextui-org/popover";
+import { StylesConfig } from 'react-select';
+
 import {
     MoneyAdder,
     Gear,
@@ -30,7 +32,6 @@ import {
     HelpIcon,
     HelpTooltip
 } from '../styles/styledComponents';
-import { StylesConfig } from 'react-select';
 
 interface LunchMoneyCategory {
     id: number;
