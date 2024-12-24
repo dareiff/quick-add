@@ -782,6 +782,19 @@ const Home: React.FC = () => {
                                         </TinyButton>
                                     </div>
                                 )}
+                                {recentAssets.length !== 0 && (
+                                    <div>
+                                        <p></p><TinyButton
+                                            onClick={() => {
+                                                localStorage.removeItem('recentAssets');
+                                                setRecentAssets([]);
+                                                showSettings(false);
+                                            }}
+                                        >
+                                            Clear Recent Assets
+                                        </TinyButton>
+                                    </div>
+                                )}
                                 <div>
                                     <p></p><label htmlFor="recentCount">Recent categories to show:</label>
                                     <SelectContainer>
@@ -829,22 +842,24 @@ const Home: React.FC = () => {
                                         placeholder= "Type to set tag(s)..."
                                     />
                                 </div>
-                                <div>
-                                    <p></p><label htmlFor="recentAssetCount">Recent assets to show:</label>
-                                    <SelectContainer>
-                                        <StyledSelect
-                                            id="recentAssetCount"
-                                            value={recentAssetCount}
-                                            onChange={handleRecentAssetCountChange}
-                                        >
-                                            {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
-                                                <option key={num} value={num}>
-                                                    {num}
-                                                </option>
-                                            ))}
-                                        </StyledSelect>
-                                    </SelectContainer>
-                                </div>
+                                {assets && assets.length > 0 && (
+                                    <div>
+                                        <p></p><label htmlFor="recentAssetCount">Recent assets to show:</label>
+                                        <SelectContainer>
+                                            <StyledSelect
+                                                id="recentAssetCount"
+                                                value={recentAssetCount}
+                                                onChange={handleRecentAssetCountChange}
+                                            >
+                                                {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                                                    <option key={num} value={num}>
+                                                        {num}
+                                                    </option>
+                                                ))}
+                                            </StyledSelect>
+                                        </SelectContainer>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
@@ -964,7 +979,7 @@ const Home: React.FC = () => {
                             </>
                         )}
 
-                        {assets !== null && (
+                        {assets !== null && assets.length > 0 && (
                             <>
                                 <CategoryHolder>
                                     {recentAssets.map((assetone, i) => (
