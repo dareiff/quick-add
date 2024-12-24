@@ -282,6 +282,19 @@ interface LunchMoneyCategory {
     archived: boolean;
 }
 
+interface LunchMoneyAsset {
+    id: number;
+    type_name: string;
+    subtype_name: string | null;
+    name: string;
+    balance: string;
+    balance_as_of: string;
+    currency: string;
+    institution_name: string | null;
+    exclude_transactions: boolean;
+    created_at: string;
+}
+
 const components = {
     DropdownIndicator: null,
 };
@@ -343,6 +356,14 @@ const Home: React.FC = () => {
 
     const [selectedCategory, setSelectedCategory] = useState<any>(null);
 
+    const [assets, setAssets] = useState<Array<LunchMoneyAsset> | null>(null);
+    const [selectedAsset, setSelectedAsset] = useState<LunchMoneyAsset | null>(null);
+    const [recentAssets, setRecentAssets] = useState<{
+        asset: LunchMoneyAsset;
+        count: number
+    }[]>([]);
+    const [recentAssetCount, setRecentAssetCount] = useState<number>(3);
+
     const categoryOptions = cats?.filter(cat => !cat.is_group)
                                  .filter(cat => !cat.archived)
                                  .filter(cat => !cat.exclude_from_budget)
@@ -353,11 +374,22 @@ const Home: React.FC = () => {
                                      label: cat.name,
                                  })) || [];
 
+    const assetOptions = assets?.map((asset) => ({
+        value: asset,
+        label: asset.name,
+    })) || [];
+
     const handleCategoryChange = (selectedOption: any) => {
         setSelectedCategory(selectedOption);
         setChosenCategory(selectedOption.value);
         updateRecentCategories(selectedOption.value);
         setNoCategoryWarning(false);
+    };
+
+    const handleAssetChange = (selectedOption: any) => {
+        setSelectedAsset(selectedOption.value);
+        setChosenAsset(selectedOption.value);
+        updateRecentAssets(selectedOption.value);
     };
 
     const setChosenCategory = (newCategory: LunchMoneyCategory) => {
@@ -367,6 +399,10 @@ const Home: React.FC = () => {
         if (notesRef.current) {
             notesRef.current.focus();
         }
+    };
+
+    const setChosenAsset = (newAsset: LunchMoneyAsset) => {
+        setSelectedAsset(newAsset);
     };
 
     const downloadCats = async (at: string) => {
@@ -391,6 +427,28 @@ const Home: React.FC = () => {
         const data = await result.json();
         console.log('did we get anything?');
         setCats(data.categories);
+        setError('');
+    };
+
+    const downloadAssets = async (at: string) => {
+        const result = await fetch('https://dev.lunchmoney.app/v1/assets', {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + at,
+            },
+            method: 'GET',
+        });
+
+        if (!result.ok) {
+            const error = 'Something went wrong downloading assets. You might check your network connection, or your API key';
+            console.error(error);
+            setError(error);
+            setAssets(null);
+            return;
+        }
+
+        const data = await result.json();
+        setAssets(data.assets);
         setError('');
     };
 
@@ -457,6 +515,16 @@ const Home: React.FC = () => {
         if (storedTags) {
             setTags(JSON.parse(storedTags));
         }
+
+        const storedRecentAssets = localStorage.getItem('recentAssets');
+        if (storedRecentAssets) {
+            setRecentAssets(JSON.parse(storedRecentAssets));
+        }
+
+        const storedRecentAssetCount = localStorage.getItem('recentAssetCount');
+        if (storedRecentAssetCount) {
+            setRecentAssetCount(parseInt(storedRecentAssetCount, 10));
+        }
     }, []);
 
     useEffect(() => {
@@ -476,6 +544,7 @@ const Home: React.FC = () => {
             return;
         }
         downloadCats(accessTokenInState);
+        downloadAssets(accessTokenInState);
     }, [accessTokenInState]);
 
     const addAccessTokenFromHTMLElement = async () => {
@@ -503,6 +572,14 @@ const Home: React.FC = () => {
         localStorage.setItem('recentCount', recentCount.toString());
     }, [recentCount]);
 
+    useEffect(() => {
+        localStorage.setItem('recentAssets', JSON.stringify(recentAssets));
+    }, [recentAssets]);
+
+    useEffect(() => {
+        localStorage.setItem('recentAssetCount', recentAssetCount.toString());
+    }, [recentAssetCount]);
+
     const updateRecentCategories = (newCategory: LunchMoneyCategory) => {
         let updatedRecent = [...recentCategories];
         const existingCategoryIndex = updatedRecent.findIndex(item => item.category.id === newCategory.id);
@@ -524,9 +601,33 @@ const Home: React.FC = () => {
         }
     };
 
+    const updateRecentAssets = (newAsset: LunchMoneyAsset) => {
+        let updatedRecent = [...recentAssets];
+        const existingAssetIndex = updatedRecent.findIndex(item => item.asset.id === newAsset.id);
+
+        if (existingAssetIndex !== -1) {
+            updatedRecent[existingAssetIndex].count++;
+        } else {
+            updatedRecent.unshift({ asset: newAsset, count: 1 });
+        }
+
+        updatedRecent.sort((a, b) => b.count - a.count);
+        updatedRecent = updatedRecent.slice(0, recentAssetCount);
+
+        if (JSON.stringify(updatedRecent) !== JSON.stringify(recentAssets)) {
+            setRecentAssets(updatedRecent);
+            localStorage.setItem('recentAssets', JSON.stringify(updatedRecent));
+        }
+    };
+
     const handleRecentCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = parseInt(e.target.value, 10);
         setRecentCount(value);
+    };
+
+    const handleRecentAssetCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = parseInt(e.target.value, 10);
+        setRecentAssetCount(value);
     };
 
     const handleNotesKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -560,6 +661,7 @@ const Home: React.FC = () => {
         const transactionsToInsert = [{
             amount: negative ? `-${amount}` : amount,
             category_id: category.id,
+            asset_id: selectedAsset?.id,
             date: date,
             payee: payee,
             notes: notes,
@@ -727,6 +829,22 @@ const Home: React.FC = () => {
                                         placeholder= "Type to set tag(s)..."
                                     />
                                 </div>
+                                <div>
+                                    <p></p><label htmlFor="recentAssetCount">Recent assets to show:</label>
+                                    <SelectContainer>
+                                        <StyledSelect
+                                            id="recentAssetCount"
+                                            value={recentAssetCount}
+                                            onChange={handleRecentAssetCountChange}
+                                        >
+                                            {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                                                <option key={num} value={num}>
+                                                    {num}
+                                                </option>
+                                            ))}
+                                        </StyledSelect>
+                                    </SelectContainer>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -841,6 +959,42 @@ const Home: React.FC = () => {
                                     options={categoryOptions}
                                     isSearchable={false}
                                     placeholder={recentCategories.length === 0 ? 'Select a category...' : 'More categories...'}
+                                    styles={menuStyles}
+                                />
+                            </>
+                        )}
+
+                        {assets !== null && (
+                            <>
+                                <CategoryHolder>
+                                    {recentAssets.map((assetone, i) => (
+                                        <CategorySelector
+                                            key={i}
+                                            value={assetone.asset.id}
+                                            selected={
+                                                selectedAsset !== null &&
+                                                selectedAsset.id === assetone.asset.id
+                                            }
+                                            $dimmed={
+                                                selectedAsset === null || (selectedAsset !== null &&
+                                                selectedAsset.id !== assetone.asset.id)
+                                            }
+                                            onClick={() => {
+                                                setChosenAsset(assetone.asset);
+                                                updateRecentAssets(assetone.asset);
+                                            }}
+                                        >
+                                            {assetone.asset.name}
+                                        </CategorySelector>
+                                    ))}
+                                </CategoryHolder>
+
+                                <Select
+                                    value={selectedAsset}
+                                    onChange={handleAssetChange}
+                                    options={assetOptions}
+                                    isSearchable={false}
+                                    placeholder={recentAssets.length === 0 ? 'Select an asset...' : 'More assets...'}
                                     styles={menuStyles}
                                 />
                             </>
