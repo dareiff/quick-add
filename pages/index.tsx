@@ -357,7 +357,7 @@ const Home: React.FC = () => {
     const [selectedCategory, setSelectedCategory] = useState<any>(null);
 
     const [assets, setAssets] = useState<Array<LunchMoneyAsset> | null>(null);
-    const [selectedAsset, setSelectedAsset] = useState<LunchMoneyAsset | null>(null);
+    const [chosenAsset, setChosenAsset] = useState<LunchMoneyAsset | null>(null);
     const [recentAssets, setRecentAssets] = useState<{
         asset: LunchMoneyAsset;
         count: number
@@ -401,7 +401,6 @@ const Home: React.FC = () => {
 
     const handleAssetChange = (selectedOption: Option<LunchMoneyAsset> | null) => {
         if (selectedOption) {
-            setSelectedAsset(selectedOption.value);
             setChosenAsset(selectedOption.value);
             updateRecentAssets(selectedOption.value);
             if (amountRef.current) {
@@ -412,13 +411,6 @@ const Home: React.FC = () => {
 
     const setChosenCategory = (newCategory: LunchMoneyCategory) => {
         setCategory(newCategory);
-    };
-
-    const setChosenAsset = (newAsset: LunchMoneyAsset) => {
-        setSelectedAsset(newAsset);
-        if (amountRef.current) {
-            amountRef.current.focus();
-        }
     };
 
     const downloadCats = async (at: string) => {
@@ -667,7 +659,7 @@ const Home: React.FC = () => {
         const transactionsToInsert = [{
             amount: negative ? `-${amount}` : amount,
             category_id: category.id,
-            asset_id: selectedAsset?.id,
+            asset_id: chosenAsset?.id,
             date: date,
             payee: payee,
             notes: notes,
@@ -701,7 +693,6 @@ const Home: React.FC = () => {
                 setSelectedCategory(null);
                 setCategory(null);
                 setChosenAsset(null);
-                setSelectedAsset(null);
                 timeoutId = setTimeout(() => {
                     setSuccess(false);
                 }, 3000);
@@ -870,12 +861,12 @@ const Home: React.FC = () => {
                                             key={i}
                                             value={assetone.id}
                                             selected={
-                                                selectedAsset !== null &&
-                                                selectedAsset.id === assetone.id
+                                                chosenAsset !== null &&
+                                                chosenAsset.id === assetone.id
                                             }
                                             $dimmed={
-                                                selectedAsset === null || (selectedAsset !== null &&
-                                                selectedAsset.id !== assetone.id)
+                                                chosenAsset === null || (chosenAsset !== null &&
+                                                chosenAsset.id !== assetone.id)
                                             }
                                             onClick={() => {
                                                 setChosenAsset(assetone);
