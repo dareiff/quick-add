@@ -412,11 +412,6 @@ const Home: React.FC = () => {
 
     const setChosenCategory = (newCategory: LunchMoneyCategory) => {
         setCategory(newCategory);
-
-        // Set focus to the notes input after setting the category.
-        if (notesRef.current) {
-            notesRef.current.focus();
-        }
     };
 
     const setChosenAsset = (newAsset: LunchMoneyAsset) => {
