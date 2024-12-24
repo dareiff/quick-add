@@ -404,6 +404,9 @@ const Home: React.FC = () => {
             setSelectedAsset(selectedOption.value);
             setChosenAsset(selectedOption.value);
             updateRecentAssets(selectedOption.value);
+            if (amountRef.current) {
+                amountRef.current.focus();
+            }
         }
     };
 
@@ -418,6 +421,9 @@ const Home: React.FC = () => {
 
     const setChosenAsset = (newAsset: LunchMoneyAsset) => {
         setSelectedAsset(newAsset);
+        if (amountRef.current) {
+            amountRef.current.focus();
+        }
     };
 
     const downloadCats = async (at: string) => {
