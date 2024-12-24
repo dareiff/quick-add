@@ -326,8 +326,6 @@ const Home: React.FC = () => {
     const [recentCount, setRecentCount] = useState<number>(3);
     const [showRecent, setShowRecent] = useState(true);
     const [category, setCategory] = useState<LunchMoneyCategory | null>(null);
-    const [enableOffset, setEnableOffset] = useState<boolean>(false);
-    const [offsetCategory, setOffsetCategory] = useState<LunchMoneyCategory | null>(null);
     const [error, setError] = useState<string>('');
     const [settings, showSettings] = useState<boolean>(false);
     const [negative, setNegative] = useState<boolean>(true);
@@ -350,12 +348,6 @@ const Home: React.FC = () => {
                                  .filter(cat => !cat.exclude_from_budget)
                                  .filter(cat => !cat.exclude_from_totals)
                                  // Transform categories into options for react-select
-                                 .map((cat) => ({
-                                     value: cat,
-                                     label: cat.name,
-                                 })) || [];
-
-    const offsetCategoryOptions = cats?.filter(cat => !cat.archived)
                                  .map((cat) => ({
                                      value: cat,
                                      label: cat.name,
@@ -465,22 +457,6 @@ const Home: React.FC = () => {
         if (storedTags) {
             setTags(JSON.parse(storedTags));
         }
-
-        const storedOffsetCategory = localStorage.getItem('offsetCategory');
-        if (storedOffsetCategory) {
-            setOffsetCategory(JSON.parse(storedOffsetCategory));
-        }
-
-        const storedEnableOffset = localStorage.getItem('enableOffset');
-        if (storedEnableOffset) {
-            if (storedOffsetCategory !== null ||
-                (selectedCategory !== null && selectedCategory.length > 0)) {
-                setEnableOffset(JSON.parse(storedEnableOffset));
-            } else {
-                // Keep switch off if there is no category set.
-                setEnableOffset(false);
-            }
-        }
     }, []);
 
     useEffect(() => {
@@ -560,32 +536,6 @@ const Home: React.FC = () => {
         }
     };
 
-    useEffect(() => {
-        if (offsetCategory) {
-            localStorage.setItem('offsetCategory', JSON.stringify(offsetCategory));
-        } else {
-            localStorage.removeItem('offsetCategory');
-        }
-    }, [offsetCategory]);
-
-    useEffect(() => {
-        localStorage.setItem('enableOffset', JSON.stringify(enableOffset));
-    }, [enableOffset]);
-
-    const handleOffsetCategoryChange = (selectedOption: any) => {
-        if (selectedOption) {
-            setOffsetCategory(selectedOption.value);
-            setEnableOffset(true);
-        } else{
-            setOffsetCategory(null);
-            setEnableOffset(false);
-        }
-    };
-
-    const handleOffsetSwitchChange = (checked: boolean) => {
-        setEnableOffset(checked);
-    };
-
     const insertTransaction = async () => {
         setLoading(true);
         let timeoutId: ReturnType<typeof setTimeout>;
@@ -615,23 +565,6 @@ const Home: React.FC = () => {
             notes: notes,
             tags: tagValues,
         }];
-
-        // Only add the offset transaction if it's an expense (negative amount)
-        if (enableOffset && offsetCategory) {
-            const transactionType = negative ? "Expense" : "Income";
-            let offsetNotes = `Offset for ${transactionType}: ${category.name}`;
-            if (notes) {
-                offsetNotes += ` (${notes})`;
-            }
-            transactionsToInsert.push({
-                amount: negative ? amount : `-${amount}`,  // Opposite amount
-                category_id: offsetCategory.id,
-                date: date,
-                payee: payee,
-                notes: offsetNotes,
-                tags: tagValues,
-            });
-        }
 
         var now = dayjs();
         await fetch('https://dev.lunchmoney.app/v1/transactions', {
@@ -794,33 +727,6 @@ const Home: React.FC = () => {
                                         placeholder= "Type to set tag(s)..."
                                     />
                                 </div>
-                                <div>
-                                    <p></p><label htmlFor="offsetCategory">Offset transaction category:</label>
-                                    <Popover placement="top-start">
-                                        <PopoverTrigger>
-                                            <HelpIcon>?</HelpIcon>
-                                        </PopoverTrigger>
-                                        <PopoverContent>
-                                            <HelpTooltip>
-                                                For every transaction, automatically create a second offset transaction
-                                                with the opposite amount. This would normally be the category
-                                                you use for ATM/cash withdrawals, so that this offset transaction
-                                                helps balance such category. This is almost equivalnt to Mint&apos;s
-                                                &quot;Deduct from last Cash & ATM transaction&quot; feature.
-                                                <p></p>Leave empty to disable.
-                                            </HelpTooltip>
-                                        </PopoverContent>
-                                    </Popover>
-                                    <Select
-                                        id="offsetCategory"
-                                        isClearable
-                                        value={offsetCategory ? { value: offsetCategory, label: offsetCategory.name } : null}
-                                        onChange={handleOffsetCategoryChange}
-                                        options={offsetCategoryOptions}
-                                        placeholder="Select Cash/ATM category..."
-                                        styles={menuStyles}
-                                    />
-                                </div>
                             </div>
                         )}
                     </div>
@@ -953,30 +859,6 @@ const Home: React.FC = () => {
                             type="text"
                         />
                         <p></p>
-                        <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-                            <label htmlFor="enableOffset" style={{ marginRight: '10px' }}>Add Offset {offsetCategory? offsetCategory.name : ''} Transaction: </label>
-                            <Popover placement="top-start">
-                                <PopoverTrigger>
-                                    <div>
-                                        <span style={{ display: "inline-block", verticalAlign: "middle", marginRight: "5px" }}>
-                                            <Switch
-                                                onChange={handleOffsetSwitchChange}
-                                                checked={enableOffset}
-                                                disabled={!offsetCategory}
-                                                id="enableOffset"
-                                            />
-                                        </span>
-                                    </div>
-                                </PopoverTrigger>
-                                {!offsetCategory && (
-                                    <PopoverContent>
-                                        <HelpTooltip>
-                                            To enable offset transactions, you must select an offset category under settings first.
-                                        </HelpTooltip>
-                                    </PopoverContent>
-                                )}
-                            </Popover>
-                        </div>
                         <Button onClick={() => insertTransaction()}>
                             Add Transaction
                         </Button>
