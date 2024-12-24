@@ -700,6 +700,8 @@ const Home: React.FC = () => {
                 setChosenCategory(null);
                 setSelectedCategory(null);
                 setCategory(null);
+                setChosenAsset(null);
+                setSelectedAsset(null);
                 timeoutId = setTimeout(() => {
                     setSuccess(false);
                 }, 3000);
