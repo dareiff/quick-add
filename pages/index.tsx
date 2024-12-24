@@ -362,7 +362,6 @@ const Home: React.FC = () => {
         asset: LunchMoneyAsset;
         count: number
     }[]>([]);
-    const [recentAssetCount, setRecentAssetCount] = useState<number>(3);
     const [transactionCleared, setTransactionCleared] = useState<boolean>(false);
 
     useEffect(() => {
@@ -537,10 +536,6 @@ const Home: React.FC = () => {
             setRecentAssets(JSON.parse(storedRecentAssets));
         }
 
-        const storedRecentAssetCount = localStorage.getItem('recentAssetCount');
-        if (storedRecentAssetCount) {
-            setRecentAssetCount(parseInt(storedRecentAssetCount, 10));
-        }
     }, []);
 
     useEffect(() => {
@@ -592,10 +587,6 @@ const Home: React.FC = () => {
         localStorage.setItem('recentAssets', JSON.stringify(recentAssets));
     }, [recentAssets]);
 
-    useEffect(() => {
-        localStorage.setItem('recentAssetCount', recentAssetCount.toString());
-    }, [recentAssetCount]);
-
     const updateRecentCategories = (newCategory: LunchMoneyCategory) => {
         let updatedRecent = [...recentCategories];
         const existingCategoryIndex = updatedRecent.findIndex(item => item.category.id === newCategory.id);
@@ -628,7 +619,6 @@ const Home: React.FC = () => {
         }
 
         updatedRecent.sort((a, b) => b.count - a.count);
-        updatedRecent = updatedRecent.slice(0, recentAssetCount);
 
         if (JSON.stringify(updatedRecent) !== JSON.stringify(recentAssets)) {
             setRecentAssets(updatedRecent);
@@ -639,11 +629,6 @@ const Home: React.FC = () => {
     const handleRecentCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = parseInt(e.target.value, 10);
         setRecentCount(value);
-    };
-
-    const handleRecentAssetCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = parseInt(e.target.value, 10);
-        setRecentAssetCount(value);
     };
 
     const handleNotesKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -863,24 +848,6 @@ const Home: React.FC = () => {
                                         placeholder= "Type to set tag(s)..."
                                     />
                                 </div>
-                                {assets && assets.length > 0 && (
-                                    <div>
-                                        <p></p><label htmlFor="recentAssetCount">Recent assets to show:</label>
-                                        <SelectContainer>
-                                            <StyledSelect
-                                                id="recentAssetCount"
-                                                value={recentAssetCount}
-                                                onChange={handleRecentAssetCountChange}
-                                            >
-                                                {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
-                                                    <option key={num} value={num}>
-                                                        {num}
-                                                    </option>
-                                                ))}
-                                            </StyledSelect>
-                                        </SelectContainer>
-                                    </div>
-                                )}
                             </div>
                         )}
                     </div>
@@ -891,6 +858,34 @@ const Home: React.FC = () => {
                         {error.length > 0 &&
                             accessTokenInState !== null && accessTokenInState.length !== 0 && <p><WarningHolder>{error}</WarningHolder></p>}
                         <p></p>
+
+                        {assets !== null && assets.length > 0 && (
+                            <>
+                                <CategoryHolder>
+                                    {assets.map((assetone, i) => (
+                                        <CategorySelector
+                                            key={i}
+                                            value={assetone.id}
+                                            selected={
+                                                selectedAsset !== null &&
+                                                selectedAsset.id === assetone.id
+                                            }
+                                            $dimmed={
+                                                selectedAsset === null || (selectedAsset !== null &&
+                                                selectedAsset.id !== assetone.id)
+                                            }
+                                            onClick={() => {
+                                                setChosenAsset(assetone);
+                                                updateRecentAssets(assetone);
+                                            }}
+                                        >
+                                            {assetone.name}
+                                        </CategorySelector>
+                                    ))}
+                                </CategoryHolder>
+                            </>
+                        )}
+
                         <InputWrapper>
                             <DollarSign>$</DollarSign>
                             <NumberInput
@@ -960,42 +955,6 @@ const Home: React.FC = () => {
                                     $100
                                 </button>
                             </MoneyAdder>
-                            </>
-                        )}
-
-                        {assets !== null && assets.length > 0 && (
-                            <>
-                                <CategoryHolder>
-                                    {recentAssets.map((assetone, i) => (
-                                        <CategorySelector
-                                            key={i}
-                                            value={assetone.asset.id}
-                                            selected={
-                                                selectedAsset !== null &&
-                                                selectedAsset.id === assetone.asset.id
-                                            }
-                                            $dimmed={
-                                                selectedAsset === null || (selectedAsset !== null &&
-                                                selectedAsset.id !== assetone.asset.id)
-                                            }
-                                            onClick={() => {
-                                                setChosenAsset(assetone.asset);
-                                                updateRecentAssets(assetone.asset);
-                                            }}
-                                        >
-                                            {assetone.asset.name}
-                                        </CategorySelector>
-                                    ))}
-                                </CategoryHolder>
-
-                                <Select
-                                    value={selectedAsset ? { value: selectedAsset, label: selectedAsset.name } : null}
-                                    onChange={handleAssetChange}
-                                    options={assetOptions}
-                                    isSearchable={false}
-                                    placeholder={recentAssets.length === 0 ? 'Select an asset...' : 'More assets...'}
-                                    styles={menuStyles}
-                                />
                             </>
                         )}
 
