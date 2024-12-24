@@ -363,6 +363,20 @@ const Home: React.FC = () => {
         count: number
     }[]>([]);
     const [recentAssetCount, setRecentAssetCount] = useState<number>(3);
+    const [transactionCleared, setTransactionCleared] = useState<boolean>(false);
+
+    useEffect(() => {
+        // Retrieve the transactionCleared state from localStorage
+        const storedTransactionCleared = localStorage.getItem('transactionCleared');
+        if (storedTransactionCleared) {
+            setTransactionCleared(JSON.parse(storedTransactionCleared));
+        }
+    }, []);
+
+    useEffect(() => {
+        // Save the transactionCleared state to localStorage whenever it changes
+        localStorage.setItem('transactionCleared', JSON.stringify(transactionCleared));
+    }, [transactionCleared]);
 
     const categoryOptions = cats?.filter(cat => !cat.is_group)
                                  .filter(cat => !cat.archived)
@@ -637,6 +651,10 @@ const Home: React.FC = () => {
         }
     };
 
+    const handleTransactionClearedChange = (checked: boolean) => {
+        setTransactionCleared(checked);
+    };
+
     const insertTransaction = async () => {
         setLoading(true);
         let timeoutId: ReturnType<typeof setTimeout>;
@@ -666,6 +684,7 @@ const Home: React.FC = () => {
             payee: payee,
             notes: notes,
             tags: tagValues,
+            status: transactionCleared ? "cleared" : "uncleared",
         }];
 
         var now = dayjs();
@@ -942,6 +961,42 @@ const Home: React.FC = () => {
                             </>
                         )}
 
+                        {assets !== null && assets.length > 0 && (
+                            <>
+                                <CategoryHolder>
+                                    {recentAssets.map((assetone, i) => (
+                                        <CategorySelector
+                                            key={i}
+                                            value={assetone.asset.id}
+                                            selected={
+                                                selectedAsset !== null &&
+                                                selectedAsset.id === assetone.asset.id
+                                            }
+                                            $dimmed={
+                                                selectedAsset === null || (selectedAsset !== null &&
+                                                selectedAsset.id !== assetone.asset.id)
+                                            }
+                                            onClick={() => {
+                                                setChosenAsset(assetone.asset);
+                                                updateRecentAssets(assetone.asset);
+                                            }}
+                                        >
+                                            {assetone.asset.name}
+                                        </CategorySelector>
+                                    ))}
+                                </CategoryHolder>
+
+                                <Select
+                                    value={selectedAsset}
+                                    onChange={handleAssetChange}
+                                    options={assetOptions}
+                                    isSearchable={false}
+                                    placeholder={recentAssets.length === 0 ? 'Select an asset...' : 'More assets...'}
+                                    styles={menuStyles}
+                                />
+                            </>
+                        )}
+
                         {cats !== null && (
                             <>
                                 <CategoryHolder>
@@ -979,42 +1034,6 @@ const Home: React.FC = () => {
                             </>
                         )}
 
-                        {assets !== null && assets.length > 0 && (
-                            <>
-                                <CategoryHolder>
-                                    {recentAssets.map((assetone, i) => (
-                                        <CategorySelector
-                                            key={i}
-                                            value={assetone.asset.id}
-                                            selected={
-                                                selectedAsset !== null &&
-                                                selectedAsset.id === assetone.asset.id
-                                            }
-                                            $dimmed={
-                                                selectedAsset === null || (selectedAsset !== null &&
-                                                selectedAsset.id !== assetone.asset.id)
-                                            }
-                                            onClick={() => {
-                                                setChosenAsset(assetone.asset);
-                                                updateRecentAssets(assetone.asset);
-                                            }}
-                                        >
-                                            {assetone.asset.name}
-                                        </CategorySelector>
-                                    ))}
-                                </CategoryHolder>
-
-                                <Select
-                                    value={selectedAsset}
-                                    onChange={handleAssetChange}
-                                    options={assetOptions}
-                                    isSearchable={false}
-                                    placeholder={recentAssets.length === 0 ? 'Select an asset...' : 'More assets...'}
-                                    styles={menuStyles}
-                                />
-                            </>
-                        )}
-
                         <p></p>
                         <TinyField
                             id='notes'
@@ -1028,6 +1047,14 @@ const Home: React.FC = () => {
                             type="text"
                         />
                         <p></p>
+                        <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+                            <label htmlFor="transactionCleared" style={{ marginRight: '10px' }}>Transaction Cleared: </label>
+                            <Switch
+                                onChange={handleTransactionClearedChange}
+                                checked={transactionCleared}
+                                id="transactionCleared"
+                            />
+                        </div>
                         <Button onClick={() => insertTransaction()}>
                             Add Transaction
                         </Button>
