@@ -2,15 +2,12 @@ import React, { createRef, useEffect, useState, useRef, KeyboardEventHandler } f
 import Head from 'next/head';
 import dayjs from 'dayjs';
 import Select from 'react-select';
-import CreatableSelect from 'react-select/creatable';
 import Switch from "react-switch";
-import { Popover, PopoverTrigger, PopoverContent } from "@nextui-org/popover";
 import { StylesConfig } from 'react-select';
 
 import {
     MoneyAdder,
     Gear,
-    CategoryHeaderGroup,
     HeaderContainer,
     ItemHolder,
     ItemSelector,
@@ -21,16 +18,11 @@ import {
     MainContainer,
     Button,
     TinyField,
-    TinyButton,
     NumberInput,
     DollarSign,
     SuccessHolder,
     WarningHolder,
-    SelectContainer,
-    StyledSelect,
     Footer,
-    HelpIcon,
-    HelpTooltip
 } from '../styles/styledComponents';
 
 import Settings from '../components/Settings';
@@ -61,10 +53,6 @@ interface LunchMoneyAsset {
     exclude_transactions: boolean;
     created_at: string;
 }
-
-const components = {
-    DropdownIndicator: null,
-};
 
 interface Option<T> {
     readonly label: string;
