@@ -1,13 +1,13 @@
 import React, { KeyboardEventHandler } from 'react';
 import CreatableSelect from 'react-select/creatable';
-import { Popover, PopoverTrigger, PopoverContent } from "@nextui-org/popover";
+import { Popover, PopoverTrigger, PopoverContent } from '@heroui/popover';
 import {
     TinyField,
     TinyButton,
     SelectContainer,
     StyledSelect,
     HelpIcon,
-    HelpTooltip
+    HelpTooltip,
 } from '../styles/styledComponents';
 
 interface SettingsProps {
@@ -53,9 +53,11 @@ const Settings: React.FC<SettingsProps> = ({
     handleKeyDown,
     handleBlur,
     addAccessTokenFromHTMLElement,
-    accessRef
+    accessRef,
 }) => {
-    const handleRecentCountChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleRecentCountChange = (
+        e: React.ChangeEvent<HTMLSelectElement>,
+    ) => {
         const value = parseInt(e.target.value, 10);
         setRecentCount(value);
     };
@@ -65,8 +67,14 @@ const Settings: React.FC<SettingsProps> = ({
             {accessTokenInState === null || accessTokenInState.length === 0 ? (
                 <div>
                     <h3>Welcome!</h3>
-                    <p>This app lets you quickly add manual transactions to LunchMoney on the go.</p>
-                    <p>To get started, add your access token (only stored locally on your device.)</p>
+                    <p>
+                        This app lets you quickly add manual transactions to
+                        LunchMoney on the go.
+                    </p>
+                    <p>
+                        To get started, add your access token (only stored
+                        locally on your device.)
+                    </p>
                     <TinyField
                         placeholder='LunchMoney Access Token'
                         type='text'
@@ -87,20 +95,27 @@ const Settings: React.FC<SettingsProps> = ({
                                 setAuthenticated(false);
                             }}
                         >
-                            Delete Access Token (...{accessTokenInState.slice(-6)})
+                            Delete Access Token (...
+                            {accessTokenInState.slice(-6)})
                         </TinyButton>
                     </div>
                     <div>
-                        <p></p><TinyButton onClick={() => {
-                            setShowQuickButtons(!showQuickButtons);
-                            showSettings(false);
-                        }}>
-                            {showQuickButtons ? 'Hide Quick Buttons' : 'Show Quick Buttons'}
+                        <p></p>
+                        <TinyButton
+                            onClick={() => {
+                                setShowQuickButtons(!showQuickButtons);
+                                showSettings(false);
+                            }}
+                        >
+                            {showQuickButtons
+                                ? 'Hide Quick Buttons'
+                                : 'Show Quick Buttons'}
                         </TinyButton>
                     </div>
                     {recentCategories.length !== 0 && (
                         <div>
-                            <p></p><TinyButton
+                            <p></p>
+                            <TinyButton
                                 onClick={() => {
                                     localStorage.removeItem('recentCategories');
                                     setRecentCategories([]);
@@ -113,7 +128,8 @@ const Settings: React.FC<SettingsProps> = ({
                     )}
                     {recentAssets.length !== 0 && (
                         <div>
-                            <p></p><TinyButton
+                            <p></p>
+                            <TinyButton
                                 onClick={() => {
                                     localStorage.removeItem('recentAssets');
                                     setRecentAssets([]);
@@ -125,14 +141,20 @@ const Settings: React.FC<SettingsProps> = ({
                         </div>
                     )}
                     <div>
-                        <p></p><label htmlFor="recentCount">Recent categories to show:</label>
+                        <p></p>
+                        <label htmlFor='recentCount'>
+                            Recent categories to show:
+                        </label>
                         <SelectContainer>
                             <StyledSelect
-                                id="recentCount"
+                                id='recentCount'
                                 value={recentCount}
                                 onChange={handleRecentCountChange}
                             >
-                                {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                                {Array.from(
+                                    { length: 10 },
+                                    (_, i) => i + 1,
+                                ).map((num) => (
                                     <option key={num} value={num}>
                                         {num}
                                     </option>
@@ -141,29 +163,36 @@ const Settings: React.FC<SettingsProps> = ({
                         </SelectContainer>
                     </div>
                     <div>
-                        <p></p><label htmlFor="tags">Tag all transactions as:</label>
-                        <Popover placement="top-start">
+                        <p></p>
+                        <label htmlFor='tags'>Tag all transactions as:</label>
+                        <Popover placement='top-start'>
                             <PopoverTrigger>
                                 <HelpIcon>?</HelpIcon>
                             </PopoverTrigger>
                             <PopoverContent>
                                 <HelpTooltip>
-                                    Tag(s) that will be added to all transactions (e.g., &quot;cash&quot;,
-                                    &quot; manual-cash&quot;, &quot;milk-money&quot;, etc.) to make it easier
-                                    to track transactions entered from this tool.
+                                    Tag(s) that will be added to all
+                                    transactions (e.g., &quot;cash&quot;, &quot;
+                                    manual-cash&quot;, &quot;milk-money&quot;,
+                                    etc.) to make it easier to track
+                                    transactions entered from this tool.
                                     <p></p>Leave empty to disable.
                                 </HelpTooltip>
                             </PopoverContent>
                         </Popover>
                         <CreatableSelect
-                            id="tags"
+                            id='tags'
                             components={{ DropdownIndicator: null }}
                             inputValue={inputValue}
                             isClearable
                             isMulti
                             menuIsOpen={false}
-                            onChange={(newValue) => { setTags(newValue) }}
-                            onInputChange={(newValue: any) => setInputValue(newValue as string)}
+                            onChange={(newValue) => {
+                                setTags(newValue);
+                            }}
+                            onInputChange={(newValue: any) =>
+                                setInputValue(newValue as string)
+                            }
                             onKeyDown={handleKeyDown}
                             onBlur={handleBlur}
                             value={tags}
@@ -180,7 +209,7 @@ const Settings: React.FC<SettingsProps> = ({
                                     width: '100%',
                                 }),
                             }}
-                            placeholder="Type to set tag(s)..."
+                            placeholder='Type to set tag(s)...'
                         />
                     </div>
                 </div>
