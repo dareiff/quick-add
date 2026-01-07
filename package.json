@@ -9,26 +9,26 @@
         "lint": "next lint"
     },
     "dependencies": {
-        "@heroui/popover": "^2.3.22",
-        "dayjs": "^1.11.13",
-        "next": "^15.3.5",
-        "next-plausible": "^3.12.4",
+        "@heroui/popover": "^2.3.29",
+        "dayjs": "^1.11.19",
+        "next": "^16.1.1",
+        "next-plausible": "^3.12.5",
         "next-pwa": "^5.6.0",
-        "react": "^19.1.0",
-        "react-dom": "^19.1.0",
-        "react-is": "^19.1.0",
-        "react-select": "^5.10.1",
+        "react": "^19.2.3",
+        "react-dom": "^19.2.3",
+        "react-is": "^19.2.3",
+        "react-select": "^5.10.2",
         "react-switch": "^7.1.0",
-        "styled-components": "^6.1.19"
+        "styled-components": "^6.2.0"
     },
     "devDependencies": {
-        "@types/node": "^24.0.10",
-        "@types/react": "^19.1.8",
+        "@types/node": "^25.0.3",
+        "@types/react": "^19.2.7",
         "babel-plugin-styled-components": "^2.1.4",
-        "eslint-config-next": "15.3.5",
-        "eslint-config-prettier": "^10.1.5",
-        "eslint-plugin-prettier": "^5.5.1",
-        "prettier": "^3.6.2",
-        "typescript": "^5.8.3"
+        "eslint-config-next": "16.1.1",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-prettier": "^5.5.4",
+        "prettier": "^3.7.4",
+        "typescript": "^5.9.3"
     }
 }
